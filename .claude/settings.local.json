@@ -1,0 +1,19 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm run:*)",
+      "Bash(convert -size 800x1000 'xc:#333333' -fill '#00FF9C' -pointsize 40 -gravity center -annotate +0+0 'Add Your Headshot\\\\nto /public/hero.jpg' public/hero.jpg)",
+      "Bash(/c/Users/Windows/Desktop/cybersage-v2/FILES_CREATED.txt:*)",
+      "Bash(ls -1 *.md *.txt)",
+      "Read(//public/**)",
+      "Bash(cat:*)",
+      "Bash(npm install:*)",
+      "Bash(curl -s http://localhost:3000)",
+      "Bash(find c:UsersWindowsDesktopcybersage-v2srccomponents -type f -name *)",
+      "Bash(find c:UsersWindowsDesktopcybersage-v2srclib -type f -name *)"
+    ],
+    "additionalDirectories": [
+      "\\tmp"
+    ]
+  }
+}
