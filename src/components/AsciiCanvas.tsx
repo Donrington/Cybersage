@@ -1,22 +1,27 @@
 'use client';
 
 import { Suspense, useEffect, useRef } from 'react';
-import { Canvas, useFrame, useThree } from '@react-three/fiber';
+import { Canvas, useFrame, useThree, advance } from '@react-three/fiber';
 import { useTexture } from '@react-three/drei';
 import { EffectComposer, Bloom } from '@react-three/postprocessing';
 import * as THREE from 'three';
 import { vertexShader, fragmentShader } from '@/lib/shaders';
 
 // ─── FrameKeepAlive — overrides R3F's IntersectionObserver pause ─────────────
-// R3F's internal IntersectionObserver sets internal.active = false when the
-// canvas leaves the viewport, which freezes the loop even with frameloop="always".
-// gl.setAnimationLoop drives the render at the WebGL driver level, bypassing it.
+// R3F's advance(timestamp) without a state arg still checks internal.active
+// and bails when the canvas scrolls off-screen. Passing the live state object
+// directly bypasses that gate, and forcing internal.active = true prevents R3F
+// from cancelling its own rAF loop in the background.
 function FrameKeepAlive() {
-  const { gl, advance } = useThree();
+  const { gl, get } = useThree();
   useEffect(() => {
-    gl.setAnimationLoop((timestamp: number) => advance(timestamp / 1000));
+    gl.setAnimationLoop((timestamp: number) => {
+      const state = get();
+      state.internal.active = true;           // prevent R3F from killing its loop
+      advance(timestamp / 1000, true, state); // render unconditionally via top-level advance
+    });
     return () => { gl.setAnimationLoop(null); };
-  }, [gl, advance]);
+  }, [gl, get]);
   return null;
 }
 

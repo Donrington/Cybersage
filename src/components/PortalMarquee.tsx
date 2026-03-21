@@ -228,30 +228,14 @@ export function PortalMarquee({ isParentHovered = false }: PortalMarqueeProps) {
         </div>
       </div>
 
-      {/* ── Left portal blur — logos materialise through this gate ─────────── */}
-      <div style={{
-        position: 'absolute', left: 0, top: 0, bottom: 0, width: 80,
-        backdropFilter: 'blur(6px)',
-        WebkitBackdropFilter: 'blur(6px)',
-        maskImage: 'linear-gradient(to right, black 20%, transparent 100%)',
-        WebkitMaskImage: 'linear-gradient(to right, black 20%, transparent 100%)',
-        pointerEvents: 'none', zIndex: 5,
-      }} />
+      {/* ── Left fade — logos materialise ───────────────────────────────────── */}
       <div style={{
         position: 'absolute', left: 0, top: 0, bottom: 0, width: 80,
         background: `radial-gradient(ellipse at 0% 50%, ${EMERALD}0F 0%, ${FLAME}07 55%, transparent 100%)`,
         pointerEvents: 'none', zIndex: 6,
       }} />
 
-      {/* ── Right portal blur — logos dematerialise through this gate ──────── */}
-      <div style={{
-        position: 'absolute', right: 0, top: 0, bottom: 0, width: 80,
-        backdropFilter: 'blur(6px)',
-        WebkitBackdropFilter: 'blur(6px)',
-        maskImage: 'linear-gradient(to left, black 20%, transparent 100%)',
-        WebkitMaskImage: 'linear-gradient(to left, black 20%, transparent 100%)',
-        pointerEvents: 'none', zIndex: 5,
-      }} />
+      {/* ── Right fade — logos dematerialise ────────────────────────────────── */}
       <div style={{
         position: 'absolute', right: 0, top: 0, bottom: 0, width: 80,
         background: `radial-gradient(ellipse at 100% 50%, ${EMERALD}0F 0%, ${FLAME}07 55%, transparent 100%)`,
