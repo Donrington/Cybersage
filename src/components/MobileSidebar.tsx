@@ -164,7 +164,6 @@ export function MobileSidebar({ open, onClose }: MobileSidebarProps) {
   }, [onClose]);
 
   const bgColor = useTransform(bgOpacity, v => `rgba(6,6,6,${v.toFixed(3)})`);
-  const backdropBlur = useTransform(blurPx, v => `blur(${v.toFixed(1)}px)`);
 
   return (
     <AnimatePresence>
@@ -179,8 +178,6 @@ export function MobileSidebar({ open, onClose }: MobileSidebarProps) {
           style={{
             position: 'fixed', inset: 0, zIndex: 190,
             background: bgColor,
-            backdropFilter: backdropBlur,
-            WebkitBackdropFilter: backdropBlur,
             overflow: 'hidden',
           }}
         >

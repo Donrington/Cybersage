@@ -89,6 +89,7 @@ export function AsciiCanvas() {
       className="w-full h-full"
       camera={{ position: [0, 0, 1], fov: 75, near: 0.01, far: 10 }}
       gl={{ antialias: false, toneMapping: THREE.NoToneMapping, alpha: false }}
+      frameloop="always"
     >
       <Suspense fallback={null}>
         <AsciiPlane />

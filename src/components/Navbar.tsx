@@ -231,33 +231,38 @@ export function Navbar() {
           </div>
         </div>
 
-        {/* ── Mobile top bar ────────────────────────────────────────────────── */}
-        <div
-          className="lg:hidden"
-          style={{
-            pointerEvents: 'auto',
-            display: 'flex', alignItems: 'center', justifyContent: 'flex-end',
-            padding: '14px 20px',
-            background: 'transparent',
-            backdropFilter: scrolled ? 'blur(12px)' : 'none',
-            WebkitBackdropFilter: scrolled ? 'blur(12px)' : 'none',
-            borderBottom: 'none',
-            transition: 'backdrop-filter 0.3s ease',
-          }}
-        >
-          {/* Data Toggle button — right-aligned, no CYBERSAGE text */}
-          <button
-            onClick={() => setMenuOpen(o => !o)}
-            style={{ background: 'none', border: 'none', cursor: 'crosshair', padding: 8, outline: 'none' }}
-            aria-label={menuOpen ? 'Close menu' : 'Open menu'}
-            aria-expanded={menuOpen}
-          >
-            <DataToggle open={menuOpen} />
-          </button>
-        </div>
       </motion.nav>
 
-      {/* Mobile sidebar — rendered as sibling, zIndex 190 (below navbar at 200) */}
+      {/* ── Mobile bottom toggle — fixed, bottom-center ──────────────────────── */}
+      <motion.div
+        className="lg:hidden"
+        initial={{ opacity: 0, y: 14 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, delay: 0.5, ease: EASE }}
+        style={{
+          position: 'fixed', bottom: 28, right: 24, zIndex: 201,
+          pointerEvents: 'auto',
+        }}
+      >
+        <button
+          onClick={() => setMenuOpen(o => !o)}
+          aria-label={menuOpen ? 'Close menu' : 'Open menu'}
+          aria-expanded={menuOpen}
+          style={{
+            background: 'rgba(6,6,6,0.72)',
+            border: '0.5px solid rgba(0,255,156,0.18)',
+            borderRadius: 999,
+            cursor: 'crosshair',
+            padding: '10px 14px',
+            outline: 'none',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+          }}
+        >
+          <DataToggle open={menuOpen} />
+        </button>
+      </motion.div>
+
+      {/* Mobile sidebar — rendered as sibling, zIndex 190 (below toggle at 201) */}
       <MobileSidebar open={menuOpen} onClose={() => setMenuOpen(false)} />
     </>
   );
