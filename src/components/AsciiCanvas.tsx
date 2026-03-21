@@ -7,6 +7,19 @@ import { EffectComposer, Bloom } from '@react-three/postprocessing';
 import * as THREE from 'three';
 import { vertexShader, fragmentShader } from '@/lib/shaders';
 
+// ─── FrameKeepAlive — overrides R3F's IntersectionObserver pause ─────────────
+// R3F's internal IntersectionObserver sets internal.active = false when the
+// canvas leaves the viewport, which freezes the loop even with frameloop="always".
+// gl.setAnimationLoop drives the render at the WebGL driver level, bypassing it.
+function FrameKeepAlive() {
+  const { gl, advance } = useThree();
+  useEffect(() => {
+    gl.setAnimationLoop((timestamp: number) => advance(timestamp / 1000));
+    return () => { gl.setAnimationLoop(null); };
+  }, [gl, advance]);
+  return null;
+}
+
 // ─── Scene (inside Canvas, inside Suspense) ──────────────────────────────────
 function AsciiPlane() {
   const meshRef = useRef<THREE.Mesh>(null);
@@ -91,6 +104,9 @@ export function AsciiCanvas() {
       gl={{ antialias: false, toneMapping: THREE.NoToneMapping, alpha: false }}
       frameloop="always"
     >
+      {/* Keeps the render loop alive when canvas is scrolled off-screen */}
+      <FrameKeepAlive />
+
       <Suspense fallback={null}>
         <AsciiPlane />
       </Suspense>

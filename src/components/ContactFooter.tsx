@@ -28,9 +28,10 @@ const TX_LINES = [
 ];
 
 const SOCIAL_LINKS = [
-  { dir: '/LINKEDIN', href: 'https://linkedin.com',  label: 'LinkedIn' },
-  { dir: '/GITHUB',   href: 'https://github.com',    label: 'GitHub'   },
-  { dir: '/TWITTER',  href: 'https://twitter.com',   label: 'Twitter'  },
+  { dir: '/LINKEDIN', href: 'https://www.linkedin.com/in/carrington-abakwe-b0b0a0217', label: 'LinkedIn' },
+  { dir: '/GITHUB',   href: 'https://github.com/Donrington',                           label: 'GitHub'   },
+  { dir: '/X',        href: 'https://x.com/CarlSwitch_CHUG',                           label: 'X'        },
+  { dir: '/EMAIL',    href: 'mailto:carryoby@gmail.com',                               label: 'Email'    },
 ];
 
 // ─── Lagos clock ──────────────────────────────────────────────────────────────
