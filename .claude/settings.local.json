@@ -12,7 +12,11 @@
       "Bash(find c:UsersWindowsDesktopcybersage-v2srccomponents -type f -name *)",
       "Bash(find c:UsersWindowsDesktopcybersage-v2srclib -type f -name *)",
       "Bash(npx tsc:*)",
-      "Bash(echo \"Exit code: $?\")"
+      "Bash(echo \"Exit code: $?\")",
+      "Bash(grep -A 10 \"gsap\\\\.to\\\\|gsap\\\\.from\\\\|ScrollTrigger\\\\|scrollTrigger:\" src/components/*.tsx)",
+      "Bash(grep -n \"font-display\\\\|clamp\\\\|@media\\\\|lg:\\\\|md:\\\\|sm:\" src/components/*.tsx)",
+      "Bash(grep -n \"touchMultiplier\\\\|duration\\\\|disabled\\\\|mobile\\\\|touch\" src/components/SmoothScroll.tsx src/components/*.tsx)",
+      "Bash(wc -l src/components/*.tsx)"
     ],
     "additionalDirectories": [
       "\\tmp"
