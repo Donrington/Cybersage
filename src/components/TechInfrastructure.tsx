@@ -1,6 +1,7 @@
 'use client';
 
 import React, {
+  useCallback,
   useEffect,
   useLayoutEffect,
   useRef,
@@ -579,6 +580,211 @@ const TechNode = React.forwardRef<HTMLDivElement, TechNodeProps>(
   }
 );
 
+// ─── MobileNode ───────────────────────────────────────────────────────────────
+interface MobileNodeProps {
+  tech:          TechIcon;
+  index:         number;
+  onFocusChange: (id: string | null) => void;
+  focusedId:     string | null;
+}
+
+const MobileNode = React.memo(function MobileNode({
+  tech, index, onFocusChange, focusedId,
+}: MobileNodeProps) {
+  const nodeRef         = useRef<HTMLDivElement>(null);
+  const onFocusRef      = useRef(onFocusChange);
+  const lockTimerRef    = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const inScannerRef    = useRef(false);
+  const [inScanner,      setInScanner]      = useState(false);
+  const [labelTriggered, setLabelTriggered] = useState(false);
+
+  // Keep ref in sync so IntersectionObserver callback never stales
+  useEffect(() => { onFocusRef.current = onFocusChange; }, [onFocusChange]);
+
+  const isLeft    = index % 2 === 0;
+  const cat       = CATEGORY_META[tech.category];
+  const isFocused = focusedId === tech.id;
+  const isActive  = inScanner || isFocused;
+
+  // ── Scanner zone (middle 30% of viewport: rootMargin -35% top/bottom) ──────
+  useEffect(() => {
+    const el = nodeRef.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        const entering = entry.isIntersecting;
+        if (entering && !inScannerRef.current) {
+          setLabelTriggered(true);
+          onFocusRef.current(tech.id);
+          if (typeof navigator !== 'undefined' && navigator.vibrate) navigator.vibrate(10);
+        }
+        inScannerRef.current = entering;
+        setInScanner(entering);
+      },
+      { rootMargin: '-35% 0px -35% 0px', threshold: 0.1 },
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [tech.id]);
+
+  // ── Tap to inspect — scroll to center + lock 2s ───────────────────────────
+  const handleTap = useCallback(() => {
+    if (lockTimerRef.current) clearTimeout(lockTimerRef.current);
+    nodeRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    onFocusRef.current(tech.id);
+    setLabelTriggered(true);
+    lockTimerRef.current = setTimeout(() => {
+      if (!inScannerRef.current) onFocusRef.current(null);
+    }, 2000);
+  }, [tech.id]);
+
+  useEffect(() => () => { if (lockTimerRef.current) clearTimeout(lockTimerRef.current); }, []);
+
+  return (
+    <motion.div
+      ref={nodeRef}
+      layout
+      onClick={handleTap}
+      animate={{ opacity: isActive ? 1 : 0.25, scale: isActive ? 1 : 0.92 }}
+      transition={{ duration: 0.3, ease: EASE }}
+      style={{
+        position: 'relative',
+        display: 'flex',
+        flexDirection: isLeft ? 'row' : 'row-reverse',
+        alignItems: 'flex-start',
+        gap: 16,
+        paddingTop: 18,
+        paddingBottom: 18,
+        cursor: 'pointer',
+        willChange: 'opacity, transform',
+      }}
+    >
+      {/* ── Horizontal connector to spine ─────────────────────────────────── */}
+      <div style={{
+        position: 'absolute',
+        [isLeft ? 'left' : 'right']: 'calc(50% - 26px)',
+        width: 26,
+        height: 1,
+        top: '50%',
+        transform: 'translateY(-50%)',
+        background: isActive
+          ? `linear-gradient(${isLeft ? 'to right' : 'to left'}, ${cat.color}55, ${cat.color}CC)`
+          : `linear-gradient(${isLeft ? 'to right' : 'to left'}, transparent, rgba(255,90,31,0.18))`,
+        transition: 'background 0.35s ease',
+        pointerEvents: 'none',
+      }} />
+
+      {/* ── Vertical filament pulse toward core ───────────────────────────── */}
+      <motion.div
+        animate={{
+          opacity: isActive ? 1 : 0.15,
+          background: isActive
+            ? `linear-gradient(to bottom, ${cat.color}77, #FF5A1F55, transparent)`
+            : 'linear-gradient(to bottom, rgba(255,90,31,0.1), transparent)',
+        }}
+        transition={{ duration: 0.4 }}
+        style={{
+          position: 'absolute',
+          left: isLeft ? 'calc(50% - 26px)' : 'calc(50% + 10px)',
+          top: '60%',
+          height: 80,
+          width: 1,
+          pointerEvents: 'none',
+          zIndex: 0,
+        }}
+      />
+
+      {/* ── 3D Hex icon ───────────────────────────────────────────────────── */}
+      <motion.div
+        animate={{ rotateY: isActive ? (isLeft ? -15 : 15) : (isLeft ? -5 : 5) }}
+        transition={{ duration: 0.4, ease: EASE }}
+        style={{
+          flexShrink: 0,
+          position: 'relative',
+          width: 52, height: 52,
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          transformStyle: 'preserve-3d',
+          perspective: 320,
+          zIndex: 1,
+        }}
+      >
+        <svg width={52} height={52} viewBox="0 0 52 52" style={{ position: 'absolute', inset: 0 }}>
+          <polygon
+            points="26,2 48,14 48,38 26,50 4,38 4,14"
+            fill="rgba(8,8,8,0.92)"
+            stroke={isActive ? cat.color : 'rgba(0,255,156,0.12)'}
+            strokeWidth={isActive ? 1.5 : 0.5}
+            style={{ transition: 'stroke 0.3s ease, stroke-width 0.3s ease' }}
+          />
+          {isActive && (
+            <polygon
+              points="26,2 48,14 48,38 26,50 4,38 4,14"
+              fill="none" stroke={cat.color}
+              strokeWidth={0.5} strokeOpacity={0.3} strokeDasharray="3 5"
+            />
+          )}
+        </svg>
+        <svg
+          width={22} height={22} viewBox="0 0 24 24"
+          style={{
+            position: 'relative', zIndex: 1,
+            filter: isActive
+              ? `drop-shadow(0 0 6px ${tech.color}) drop-shadow(-2px 0 rgba(255,0,100,0.45)) drop-shadow(2px 0 rgba(0,200,255,0.45))`
+              : `drop-shadow(0 0 3px ${tech.color}33)`,
+            transition: 'filter 0.3s ease',
+          }}
+        >
+          <path d={tech.svgPath} fill={tech.color} />
+        </svg>
+      </motion.div>
+
+      {/* ── Label + expanded ScanReadout ──────────────────────────────────── */}
+      <div style={{
+        flex: 1, display: 'flex', flexDirection: 'column', gap: 3,
+        textAlign: isLeft ? 'left' : 'right',
+        zIndex: 1,
+      }}>
+        <div style={{
+          fontFamily: FONT_MONO, fontSize: 9, letterSpacing: '0.16em', fontWeight: 700,
+          color: isActive ? '#F9FFF6' : 'rgba(249,255,246,0.32)',
+          transition: 'color 0.3s ease',
+        }}>
+          <GlitchLabel text={tech.label} triggered={labelTriggered} />
+        </div>
+        <div style={{
+          fontFamily: FONT_DISPLAY, fontSize: 6, letterSpacing: '0.15em', fontWeight: 900,
+          color: cat.color, opacity: isActive ? 0.85 : 0.25,
+          transition: 'opacity 0.3s ease',
+        }}>
+          [{cat.short}]
+        </div>
+
+        {/* Inline ScanReadout — animates open when active */}
+        <AnimatePresence>
+          {isActive && (
+            <motion.div
+              key="readout"
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              exit={{ opacity: 0, height: 0 }}
+              transition={{ duration: 0.26, ease: EASE }}
+              style={{ overflow: 'hidden' }}
+            >
+              <div style={{ paddingTop: 8 }}>
+                <ScanReadout
+                  label={tech.label} stat={tech.stat} statVal={tech.statVal}
+                  color={tech.color} visible={isActive}
+                />
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+    </motion.div>
+  );
+});
+
 // ─── TechInfrastructure ───────────────────────────────────────────────────────
 export function TechInfrastructure() {
   const sectionRef  = useRef<HTMLElement>(null);
@@ -587,9 +793,11 @@ export function TechInfrastructure() {
   const svgRef      = useRef<SVGSVGElement>(null);
   const scanRef     = useRef<HTMLDivElement>(null);
   const mobileGridRef = useRef<HTMLDivElement>(null);
-  const [isEntered,  setIsEntered]  = useState(false);
-  const [stageSize,  setStageSize]  = useState({ w: 900, h: 560 });
-  const [hoveredId,  setHoveredId]  = useState<string | null>(null);
+  const [isEntered,     setIsEntered]     = useState(false);
+  const [stageSize,     setStageSize]     = useState({ w: 900, h: 560 });
+  const [hoveredId,     setHoveredId]     = useState<string | null>(null);
+  const [mobileFocusId, setMobileFocusId] = useState<string | null>(null);
+  const handleMobileFocus = useCallback((id: string | null) => setMobileFocusId(id), []);
 
   const isMobile = useIsMobile();
 
@@ -716,13 +924,18 @@ export function TechInfrastructure() {
         background: 'radial-gradient(ellipse at 50% 50%, transparent 40%, rgba(0,0,0,0.72) 100%)',
       }} />
 
-      {/* ── Section header ──────────────────────────────────────────────────── */}
+      {/* ── Section header — sticky on mobile with backdrop blur ──────────── */}
       <div
+        className="sticky top-0 md:relative"
         style={{
-          position: 'relative', zIndex: 10,
+          zIndex: 20,
           paddingLeft: 'clamp(24px,6vw,96px)', paddingRight: 'clamp(24px,6vw,96px)',
           paddingTop: 'clamp(14px,2vw,24px)', paddingBottom: 'clamp(14px,2vw,24px)',
-          marginBottom: 64,
+          marginBottom: 32,
+          background: 'rgba(5,5,5,0.92)',
+          backdropFilter: 'blur(20px)',
+          WebkitBackdropFilter: 'blur(20px)',
+          borderBottom: '0.5px solid rgba(0,255,156,0.07)',
         }}
       >
         <div style={{ fontFamily: FONT_MONO, fontSize: 'clamp(8px, 1.2vw, 10px)', letterSpacing: '0.22em', color: '#00FF9C', fontWeight: 700, marginBottom: 12, opacity: 0.65, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
@@ -879,86 +1092,157 @@ export function TechInfrastructure() {
         </motion.div>
       </div>
 
-      {/* ── Mobile vertical Tower ────────────────────────────────────────────── */}
-      <div
-        className="md:hidden"
-        style={{ position: 'relative', zIndex: 5, paddingLeft: 'clamp(20px,5vw,48px)', paddingRight: 'clamp(20px,5vw,48px)' }}
-      >
-        {/* Parallax background grid — moves slower than content for depth */}
+      {/* ── Mobile 3D Helix Tower ────────────────────────────────────────────── */}
+      <div className="md:hidden" style={{ position: 'relative', zIndex: 5 }}>
+
+        {/* ── Scanner zone visual — fixed hairlines at 35vh / 65vh ─────────── */}
+        {isEntered && (
+          <div style={{
+            position: 'fixed',
+            top: '35vh', left: 0, right: 0, height: '30vh',
+            pointerEvents: 'none', zIndex: 6,
+            borderTop: '0.5px solid rgba(0,255,156,0.2)',
+            borderBottom: '0.5px solid rgba(0,255,156,0.2)',
+            background: 'linear-gradient(to bottom, rgba(0,255,156,0.012), rgba(0,255,156,0.022), rgba(0,255,156,0.012))',
+          }}>
+            <div style={{
+              position: 'absolute', top: -9, right: 16,
+              fontFamily: FONT_MONO, fontSize: 5.5, letterSpacing: '0.2em',
+              color: 'rgba(0,255,156,0.38)', fontWeight: 700,
+            }}>
+              SCANNER_ZONE
+            </div>
+            {/* Moving sweep line */}
+            <motion.div
+              animate={{ x: ['0%', '100%', '0%'] }}
+              transition={{ duration: 4, ease: 'linear', repeat: Infinity }}
+              style={{
+                position: 'absolute', top: 0, left: '-15%',
+                width: '15%', height: '100%',
+                background: 'linear-gradient(to right, transparent, rgba(0,255,156,0.12), transparent)',
+              }}
+            />
+          </div>
+        )}
+
+        {/* ── Parallax background grid — 0.2× speed ────────────────────────── */}
         <motion.div
-          ref={mobileGridRef}
           style={{
-            position: 'absolute', inset: 0,
-            pointerEvents: 'none',
+            position: 'absolute', inset: 0, pointerEvents: 'none',
             backgroundImage: `
-              repeating-linear-gradient(90deg, rgba(0,255,156,0.04) 0px, rgba(0,255,156,0.04) 1px, transparent 1px, transparent 48px),
-              repeating-linear-gradient(0deg, rgba(0,255,156,0.04) 0px, rgba(0,255,156,0.04) 1px, transparent 1px, transparent 48px)
+              repeating-linear-gradient(90deg, rgba(0,255,156,0.03) 0px, rgba(0,255,156,0.03) 1px, transparent 1px, transparent 52px),
+              repeating-linear-gradient(0deg,  rgba(0,255,156,0.03) 0px, rgba(0,255,156,0.03) 1px, transparent 1px, transparent 52px)
             `,
             y: mobileBgY,
             willChange: 'transform',
           }}
         />
 
-        {/* Tower spine */}
+        {/* ── Central spine — Tiger Flame glow ─────────────────────────────── */}
         <div style={{
           position: 'absolute',
-          left: 'calc(clamp(20px,5vw,48px) + clamp(20px, 5.5vw, 27px))',
+          left: '50%', transform: 'translateX(-50%)',
           top: 0, bottom: 0, width: 1,
-          background: 'linear-gradient(to bottom, transparent, rgba(0,255,156,0.25) 15%, rgba(0,255,156,0.25) 85%, transparent)',
+          background: 'linear-gradient(to bottom, transparent, rgba(255,90,31,0.28) 8%, rgba(255,90,31,0.28) 92%, transparent)',
         }} />
 
-        {(['CORE_INFRASTRUCTURE', 'BACKEND_STREAMS', 'DATA_VAULTS', 'CLOUD_STATIONS'] as const).map((cat, catIdx) => {
-          const techs   = TECH_ICONS.filter(t => t.category === cat);
-          const catMeta = CATEGORY_META[cat];
-          return (
-            <motion.div
-              key={cat}
-              initial={{ opacity: 0, x: -14 }}
-              animate={isEntered ? { opacity: 1, x: 0 } : { opacity: 0, x: -14 }}
-              transition={{ duration: 0.5, delay: 0.12 * catIdx, ease: EASE }}
-              style={{ marginBottom: 32, position: 'relative' }}
-            >
-              <div style={{ fontFamily: FONT_DISPLAY, fontSize: 'clamp(6px, 2vw, 7px)', letterSpacing: 'clamp(0.08em, 0.5vw, 0.18em)', color: catMeta.color, fontWeight: 900, marginBottom: 14, paddingLeft: 'clamp(44px, 12vw, 56px)', opacity: 0.8, wordBreak: 'break-word' }}>
-                [{cat}]
-              </div>
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12, paddingLeft: 'clamp(44px, 12vw, 56px)' }}>
-                {techs.map(tech => (
-                  <div key={tech.id} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4, minWidth: 'clamp(44px, 12vw, 60px)', maxWidth: 72 }}>
-                    <div style={{ position: 'relative', width: 44, height: 44 }}>
-                      <svg width={44} height={44} viewBox="0 0 52 52" style={{ position: 'absolute', inset: 0 }}>
-                        <polygon points="26,2 48,14 48,38 26,50 4,38 4,14" fill="rgba(8,8,8,0.9)" stroke={catMeta.color} strokeWidth={0.7} strokeOpacity={0.4} />
-                      </svg>
-                      <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                        <svg width={18} height={18} viewBox="0 0 24 24">
-                          <path d={tech.svgPath} fill={tech.color} />
-                        </svg>
-                      </div>
-                    </div>
-                    <div style={{ fontFamily: FONT_MONO, fontSize: 6, letterSpacing: '0.16em', color: 'rgba(249,255,246,0.5)', fontWeight: 700, textAlign: 'center', whiteSpace: 'nowrap' }}>
-                      {tech.abbr}
-                    </div>
-                    <div style={{ fontFamily: FONT_MONO, fontSize: 5.5, letterSpacing: '0.12em', color: catMeta.color, fontWeight: 700, textAlign: 'center', opacity: 0.6, whiteSpace: 'nowrap' }}>
-                      {tech.statVal}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </motion.div>
-          );
-        })}
+        {/* ── Node tower ────────────────────────────────────────────────────── */}
+        <div style={{
+          position: 'relative',
+          paddingLeft: 'clamp(16px,4vw,40px)',
+          paddingRight: 'clamp(16px,4vw,40px)',
+          paddingTop: 16,
+        }}>
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={isEntered ? { opacity: 1 } : { opacity: 0 }}
+            transition={{ duration: 0.45, ease: EASE }}
+          >
+            {TECH_ICONS.map((tech, i) => (
+              <MobileNode
+                key={tech.id}
+                tech={tech}
+                index={i}
+                onFocusChange={handleMobileFocus}
+                focusedId={mobileFocusId}
+              />
+            ))}
+          </motion.div>
 
-        {/* Core bottom */}
-        <motion.div
-          initial={{ opacity: 0, scale: 0.5 }}
-          animate={isEntered ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.5 }}
-          transition={{ duration: 0.7, delay: 0.6, ease: EASE }}
-          style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', paddingBottom: 16 }}
-        >
-          <CoreRings isEntered={isEntered} isMobile={isMobile} />
-          <div style={{ marginTop: 6, fontFamily: FONT_DISPLAY, fontSize: 7, letterSpacing: '0.2em', color: '#00FF9C', fontWeight: 900, textShadow: '0 0 6px rgba(0,255,156,0.4)' }}>
-            CYBERSAGE_CORE
-          </div>
-        </motion.div>
+          {/* ── CYBERSAGE_CORE — massive, fills mobile width ──────────────── */}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.4 }}
+            animate={isEntered ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.4 }}
+            transition={{ duration: 0.8, delay: 0.25, ease: EASE }}
+            style={{
+              display: 'flex', flexDirection: 'column', alignItems: 'center',
+              paddingTop: 40, paddingBottom: 20,
+              borderTop: '0.5px solid rgba(255,90,31,0.16)',
+            }}
+          >
+            {/* Scale CoreRings to ~90% of mobile viewport */}
+            <div style={{
+              transform: 'scale(3.4)',
+              transformOrigin: 'center center',
+              marginBottom: 72,
+            }}>
+              <CoreRings isEntered={isEntered} isMobile={false} />
+            </div>
+            <div style={{
+              fontFamily: FONT_DISPLAY, fontSize: 8, letterSpacing: '0.22em',
+              color: '#00FF9C', fontWeight: 900, textAlign: 'center',
+              textShadow: '0 0 20px rgba(0,255,156,0.55)',
+            }}>
+              CYBERSAGE_CORE
+            </div>
+            <div style={{
+              fontFamily: FONT_MONO, fontSize: 6, letterSpacing: '0.16em',
+              color: 'rgba(255,90,31,0.55)', fontWeight: 700, marginTop: 6,
+            }}>
+              NODES: {TECH_ICONS.length} // SYS: ONLINE
+            </div>
+          </motion.div>
+
+          {/* ── Mobile bottom HUD — NODE_FOCUS readout ───────────────────── */}
+          <motion.div
+            initial={{ opacity: 0, y: 8 }}
+            animate={isEntered ? { opacity: 1, y: 0 } : { opacity: 0, y: 8 }}
+            transition={{ duration: 0.4, delay: 0.5, ease: EASE }}
+            style={{
+              borderTop: '0.5px solid rgba(0,255,156,0.07)',
+              paddingTop: 16, paddingBottom: 24,
+              display: 'flex', justifyContent: 'space-between',
+              alignItems: 'center', flexWrap: 'wrap', gap: 8,
+            }}
+          >
+            <div style={{ fontFamily: FONT_MONO, fontSize: 7, letterSpacing: '0.18em', fontWeight: 700 }}>
+              <span style={{ color: 'rgba(249,255,246,0.22)' }}>FOCUS: </span>
+              <AnimatePresence mode="wait">
+                <motion.span
+                  key={mobileFocusId ?? 'idle'}
+                  initial={{ opacity: 0, y: 4 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -4 }}
+                  transition={{ duration: 0.18 }}
+                  style={{
+                    color: mobileFocusId ? '#00FF9C' : 'rgba(249,255,246,0.18)',
+                    display: 'inline-block',
+                  }}
+                >
+                  {mobileFocusId
+                    ? `${(TECH_ICONS.find(t => t.id === mobileFocusId)?.abbr ?? mobileFocusId).toUpperCase()}_NODE`
+                    : 'SCANNING_STACK...'}
+                </motion.span>
+              </AnimatePresence>
+            </div>
+            <div style={{
+              fontFamily: FONT_MONO, fontSize: 6, letterSpacing: '0.16em',
+              color: 'rgba(255,90,31,0.38)', fontWeight: 700,
+            }}>
+              SYS_OPERATOR: ABAKWE.CARRINGTON
+            </div>
+          </motion.div>
+        </div>
       </div>
 
       {/* ── Bottom HUD strip ────────────────────────────────────────────────── */}
