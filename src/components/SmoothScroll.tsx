@@ -7,6 +7,10 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
 gsap.registerPlugin(ScrollTrigger);
 
+// Module-level ref so ProjectBento can mutate lenis.options at runtime.
+// Lenis reads options.duration per scroll-call, so this takes effect immediately.
+export const lenisInstance: { current: Lenis | null } = { current: null };
+
 export function SmoothScroll({ children }: { children: React.ReactNode }) {
   const lenisRef = useRef<Lenis | null>(null);
 
@@ -18,7 +22,8 @@ export function SmoothScroll({ children }: { children: React.ReactNode }) {
       touchMultiplier: 2,
     } as any);
 
-    lenisRef.current = lenis;
+    lenisRef.current    = lenis;
+    lenisInstance.current = lenis;
 
     // Update ScrollTrigger on scroll
     lenis.on('scroll', ScrollTrigger.update);
@@ -31,6 +36,7 @@ export function SmoothScroll({ children }: { children: React.ReactNode }) {
     gsap.ticker.lagSmoothing(0);
 
     return () => {
+      lenisInstance.current = null;
       lenis.destroy();
       gsap.ticker.remove(() => {
         lenis.raf(0);

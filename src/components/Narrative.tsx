@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { AuditProgressBar } from './AuditProgressBar';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -415,6 +416,7 @@ export function Narrative() {
       ref={sectionRef}
       className="relative h-screen w-full overflow-hidden bg-cybersage-charcoal"
     >
+      <AuditProgressBar sectionRef={sectionRef} totalCards={0} />
       <DataParticles velocityRef={velocityRef} />
 
       <div className="absolute top-0 left-0 right-0 h-px z-20 bg-linear-to-r from-transparent via-white/8 to-transparent" />

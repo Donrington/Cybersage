@@ -47,6 +47,13 @@ html.lenis body {
   pointer-events: none;
 }
 
+/* CLI terminal placeholder */
+.cli-input::placeholder,
+.cli-textarea::placeholder {
+  color: rgba(249, 255, 246, 0.18);
+  letter-spacing: 0.04em;
+}
+
 /* Selection color */
 ::selection {
   background-color: var(--accent-rose);

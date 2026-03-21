@@ -10,6 +10,10 @@ import {
 } from 'framer-motion';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { AuditProgressBar } from './AuditProgressBar';
+import { lenisInstance } from './SmoothScroll';
+
+const CRITICAL_VELOCITY = 2500;
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -44,8 +48,9 @@ interface Project {
   glowColor:   string;
   sysType:     string;
   payload:     string;
-  bgImage:     string;      // placeholder image URL (replace with real assets)
+  bgImage:     string;
   bgOverlay:   string;      // cinematic color overlay gradient
+  link?:       string;      // external project URL
   hud:         HUD;
 }
 
@@ -56,7 +61,7 @@ const PROJECTS: Project[] = [
   // ── TOP TIER ──────────────────────────────────────────────────────────────
   {
     id: 'autoboy',
-    name: 'AUTOBOY',
+    name: 'AUTOBOY EXPRESS',
     category: 'B2B / B2C MARKETPLACE',
     tagline: 'Scaled a dual-sided automotive marketplace — Go microservices, real-time inventory rails, React seller dashboard, and Redis-cached product feeds.',
     insight: 'Optimised DB latency by 30% via Redis caching + Go connection pooling',
@@ -69,8 +74,9 @@ const PROJECTS: Project[] = [
     glowColor: 'rgba(255,90,31,0.28)',
     sysType: 'TYPE: B2B_B2C_MARKETPLACE // ARCH: GO_MICROSERVICES',
     payload: 'PAYLOAD_v4.2',
-    bgImage: 'https://picsum.photos/seed/autoboy-market/1600/900',
+    bgImage: '/projects/autoboy.png',
     bgOverlay: 'linear-gradient(to bottom, rgba(26,26,26,0.25) 0%, rgba(26,26,26,0.55) 45%, rgba(26,26,26,0.92) 85%), linear-gradient(135deg, rgba(255,90,31,0.22) 0%, transparent 55%)',
+    link: 'https://autoboyexpress.com',
     hud: {
       tl:     'STACK_01: GO + REACT',
       tr:     'ARCH: MICROSERVICES',
@@ -96,8 +102,9 @@ const PROJECTS: Project[] = [
     glowColor: 'rgba(0,255,156,0.25)',
     sysType: 'SYS_TYPE: PARAMEDICAL // SECURITY: HIGH_LEVEL',
     payload: 'PAYLOAD_v1.5',
-    bgImage: 'https://picsum.photos/seed/recoverderm-med/1200/900',
+    bgImage: '/projects/recoverderm.png',
     bgOverlay: 'linear-gradient(to bottom, rgba(26,26,26,0.2) 0%, rgba(26,26,26,0.5) 45%, rgba(26,26,26,0.92) 88%), linear-gradient(150deg, rgba(0,255,156,0.2) 0%, transparent 60%)',
+    link: 'https://recoverderm.ca',
     hud: {
       tl:     'SECURITY: HIGH_LEVEL',
       bl:     'API: JWT_SECURED',
@@ -124,8 +131,9 @@ const PROJECTS: Project[] = [
     glowColor: 'rgba(0,255,156,0.2)',
     sysType: 'SECTOR: AUDIT_FINANCE // STATUS: COMPLIANCE_READY',
     payload: 'PAYLOAD_v2.1',
-    bgImage: 'https://picsum.photos/seed/anoc-finance/1200/800',
+    bgImage: '/projects/anoc.png',
     bgOverlay: 'linear-gradient(to bottom, rgba(26,26,26,0.3) 0%, rgba(26,26,26,0.6) 50%, rgba(26,26,26,0.93) 88%), linear-gradient(200deg, rgba(0,255,156,0.15) 0%, transparent 60%)',
+    link: 'https://anoc.ng',
     hud: {
       tl:     'SECTOR: AUDIT_FINANCE',
       bl:     'INTEGRITY: VERIFIED',
@@ -150,8 +158,9 @@ const PROJECTS: Project[] = [
     glowColor: 'rgba(0,255,156,0.2)',
     sysType: 'TYPE: AUTOMATION_HUB // STACK: CLOUD_NATIVE',
     payload: 'PAYLOAD_v3.8',
-    bgImage: 'https://picsum.photos/seed/nextgen-robot/1200/800',
+    bgImage: '/projects/nextgen.png',
     bgOverlay: 'linear-gradient(to bottom, rgba(26,26,26,0.2) 0%, rgba(26,26,26,0.55) 50%, rgba(26,26,26,0.93) 88%), linear-gradient(160deg, rgba(0,255,156,0.18) 0%, transparent 55%)',
+    link: 'https://nextgenerationrobotics.org',
     hud: {
       tl:     'STACK: GO + AWS',
       tr:     'CLOUD: NATIVE',
@@ -176,8 +185,9 @@ const PROJECTS: Project[] = [
     glowColor: 'rgba(255,90,31,0.22)',
     sysType: 'TYPE: ENTERPRISE_CMS // SECTOR: ENERGY',
     payload: 'PAYLOAD_v5.0',
-    bgImage: 'https://picsum.photos/seed/axflo-oil/1200/800',
+    bgImage: '/projects/axflo.png',
     bgOverlay: 'linear-gradient(to bottom, rgba(26,26,26,0.25) 0%, rgba(26,26,26,0.58) 48%, rgba(26,26,26,0.93) 88%), linear-gradient(120deg, rgba(255,90,31,0.2) 0%, rgba(174,12,0,0.12) 50%, transparent 100%)',
+    link: 'https://axfloo.com',
     hud: {
       tl:     'STACK: DJANGO + PG',
       tr:     'SECTOR: ENERGY',
@@ -190,7 +200,7 @@ const PROJECTS: Project[] = [
   },
 
   // ── DISCOVERY TIER ────────────────────────────────────────────────────────
-  {
+  {  
     id: 'samdus',
     name: 'SAMDUS',
     category: 'CORP PORTFOLIO',
@@ -205,8 +215,9 @@ const PROJECTS: Project[] = [
     glowColor: 'rgba(255,90,31,0.2)',
     sysType: 'TYPE: CORP_PORTFOLIO // SLOGAN: INNOVATION_IN_SERVICES',
     payload: 'PAYLOAD_v2.4',
-    bgImage: 'https://picsum.photos/seed/samdus-corp/900/700',
+    bgImage: '/projects/samdus1_1.jpg',
     bgOverlay: 'linear-gradient(to bottom, rgba(26,26,26,0.3) 0%, rgba(26,26,26,0.65) 50%, rgba(26,26,26,0.95) 90%), linear-gradient(130deg, rgba(255,90,31,0.18) 0%, transparent 60%)',
+    link: 'https://samdus.com',
     hud: {
       tl:     'SECTOR: OIL_GAS',
       bl:     'SEO: 98/100',
@@ -231,8 +242,9 @@ const PROJECTS: Project[] = [
     glowColor: 'rgba(174,12,0,0.28)',
     sysType: 'SECTOR: MANUFACTURING // TYPE: INDUSTRIAL_SYSTEM',
     payload: 'PAYLOAD_v1.8',
-    bgImage: 'https://picsum.photos/seed/deets-industry/900/700',
+    bgImage: '/projects/deets.png',
     bgOverlay: 'linear-gradient(to bottom, rgba(26,26,26,0.3) 0%, rgba(26,26,26,0.62) 50%, rgba(26,26,26,0.95) 90%), linear-gradient(150deg, rgba(174,12,0,0.22) 0%, transparent 60%)',
+    link: 'https://deetsnigeria.org',
     hud: {
       tl:     'SECTOR: INDUSTRY',
       bl:     'REALTIME: WS',
@@ -256,7 +268,7 @@ const PROJECTS: Project[] = [
     glowColor: 'rgba(255,90,31,0.2)',
     sysType: 'TYPE: WEB_APP // IMPACT: LEAD_GENERATION',
     payload: 'PAYLOAD_v1.2',
-    bgImage: 'https://picsum.photos/seed/handyman-tools/900/700',
+    bgImage: '/projects/handyman3.jpg',
     bgOverlay: 'linear-gradient(to bottom, rgba(26,26,26,0.28) 0%, rgba(26,26,26,0.6) 50%, rgba(26,26,26,0.95) 90%), linear-gradient(140deg, rgba(255,90,31,0.16) 0%, transparent 60%)',
     hud: {
       tl:     'IMPACT: LEAD_GEN',
@@ -282,7 +294,7 @@ const PROJECTS: Project[] = [
     glowColor: 'rgba(174,12,0,0.28)',
     sysType: 'TYPE: EVENT_PORTFOLIO // TAG: PROFESSIONAL_RESUME',
     payload: 'PAYLOAD_v1.1',
-    bgImage: 'https://picsum.photos/seed/twerk-stage/900/700',
+    bgImage: '/projects/twerkqueenlagos.jpg',
     bgOverlay: 'linear-gradient(to bottom, rgba(26,26,26,0.25) 0%, rgba(26,26,26,0.6) 50%, rgba(26,26,26,0.95) 90%), linear-gradient(160deg, rgba(174,12,0,0.24) 0%, transparent 55%)',
     hud: {
       tl:     'TYPE: EVENT_PORT',
@@ -291,6 +303,89 @@ const PROJECTS: Project[] = [
       coord:  'COORD_6.5244°N_3.3792°E',
       stress: 'SYSTEM_STRESS: 0.01%',
       deploy: 'T_DEPLOY: 6ms',
+    },
+  },
+
+  // ── DIGITAL SERVICES TIER ─────────────────────────────────────────────────
+  {
+    id: 'chrisconteras',
+    name: 'CHRIS CONTERAS',
+    category: 'CLEANING AGENCY',
+    tagline: 'High-converting lead generation platform for a Texas-based professional cleaning agency — responsive UI, SEO-first architecture, and optimised service inquiry funnels.',
+    insight: 'Conversion-optimised landing stack; measurable growth in qualified service bookings',
+    stack: ['NEXT.JS', 'TAILWIND', 'SEO'],
+    status: 'LIVE',
+    engine: 'ENGINE_v1.3',
+    col: 'lg:col-span-4',
+    tier: 'medium',
+    accentColor: '#00FF9C',
+    glowColor: 'rgba(0,255,156,0.2)',
+    sysType: 'TYPE: LEAD_GEN // SECTOR: HOME_SERVICES',
+    payload: 'PAYLOAD_v1.3',
+    bgImage: '/projects/chrisconteras.png',
+    bgOverlay: 'linear-gradient(to bottom, rgba(26,26,26,0.25) 0%, rgba(26,26,26,0.55) 48%, rgba(26,26,26,0.93) 88%), linear-gradient(170deg, rgba(0,255,156,0.15) 0%, transparent 60%)',
+    link: 'https://chriscleanstexas.com',
+    hud: {
+      tl:     'SECTOR: HOME_SERVICES',
+      bl:     'CONV: OPTIMISED',
+      br:     'LOC: TEXAS_US',
+      coord:  'COORD_29.7604°N_95.3698°W',
+      stress: 'SYSTEM_STRESS: 0.01%',
+      deploy: 'T_DEPLOY: 10ms',
+    },
+  },
+  {
+    id: 'myrakeleher',
+    name: 'MYRA KELEHER',
+    category: 'CLEANING AGENCY',
+    tagline: 'Professional cleaning agency platform for Florida — service showcase, instant quote engine, and lead capture infrastructure built for maximum conversion.',
+    insight: 'Instant quote flow reduced drop-off; 40% improvement in form completion rate',
+    stack: ['REACT', 'NODE.JS', 'TAILWIND'],
+    status: 'LIVE',
+    engine: 'ENGINE_v1.4',
+    col: 'lg:col-span-4',
+    tier: 'medium',
+    accentColor: '#FF5A1F',
+    glowColor: 'rgba(255,90,31,0.2)',
+    sysType: 'TYPE: SERVICE_PLATFORM // SECTOR: HOME_SERVICES',
+    payload: 'PAYLOAD_v1.4',
+    bgImage: '/projects/myrakeleher.png',
+    bgOverlay: 'linear-gradient(to bottom, rgba(26,26,26,0.28) 0%, rgba(26,26,26,0.6) 50%, rgba(26,26,26,0.93) 88%), linear-gradient(130deg, rgba(255,90,31,0.18) 0%, transparent 60%)',
+    link: 'https://myrakelehercleaning.com',
+    hud: {
+      tl:     'SECTOR: HOME_SERVICES',
+      bl:     'FORM: OPTIMISED',
+      br:     'LOC: FLORIDA_US',
+      coord:  'COORD_27.6648°N_81.5158°W',
+      stress: 'SYSTEM_STRESS: 0.01%',
+      deploy: 'T_DEPLOY: 11ms',
+    },
+  },
+  {
+    id: 'techhub',
+    name: 'TECHHUB',
+    category: 'DEV COMMUNITY',
+    tagline: 'Developer community hub — collaborative coding platform with project showcases, resource sharing, and peer-to-peer tech networking infrastructure.',
+    insight: 'Community-driven architecture with real-time activity feeds and peer collaboration',
+    stack: ['REACT', 'NODE.JS', 'POSTGRES'],
+    status: 'OPEN_SOURCE',
+    engine: 'ENGINE_v1.0',
+    col: 'lg:col-span-4',
+    tier: 'medium',
+    accentColor: '#AE0C00',
+    glowColor: 'rgba(174,12,0,0.25)',
+    sysType: 'TYPE: DEV_COMMUNITY // ACCESS: OPEN_SOURCE',
+    payload: 'PAYLOAD_v1.0',
+    bgImage: '/projects/techhub.png',
+    bgOverlay: 'linear-gradient(to bottom, rgba(26,26,26,0.3) 0%, rgba(26,26,26,0.62) 50%, rgba(26,26,26,0.95) 90%), linear-gradient(150deg, rgba(174,12,0,0.2) 0%, transparent 60%)',
+    link: 'https://github.com/Donrington/techhub',
+    hud: {
+      tl:     'ACCESS: OPEN_SOURCE',
+      tr:     'HOST: GITHUB',
+      bl:     'COLLAB: ENABLED',
+      coord:  'COORD_6.5244°N_3.3792°E',
+      stress: 'SYSTEM_STRESS: 0.02%',
+      deploy: 'T_DEPLOY: 5ms',
     },
   },
 
@@ -310,7 +405,7 @@ const PROJECTS: Project[] = [
     glowColor: 'rgba(0,255,156,0.2)',
     sysType: 'TYPE: TRAVEL_MGMT_APP // STATUS: SECURE_API',
     payload: 'PAYLOAD_v2.0',
-    bgImage: 'https://picsum.photos/seed/amanigo-travel/1200/800',
+    bgImage: '/projects/amanigo.png',
     bgOverlay: 'linear-gradient(to bottom, rgba(26,26,26,0.25) 0%, rgba(26,26,26,0.55) 48%, rgba(26,26,26,0.93) 88%), linear-gradient(180deg, rgba(0,255,156,0.15) 0%, transparent 60%)',
     hud: {
       tl:     'TYPE: TRAVEL_MGMT',
@@ -336,7 +431,7 @@ const PROJECTS: Project[] = [
     glowColor: 'rgba(0,255,156,0.2)',
     sysType: 'TYPE: ECOMMERCE // IMPACT: PERFORMANCE_MAX',
     payload: 'PAYLOAD_v3.1',
-    bgImage: 'https://picsum.photos/seed/rokeyla-fashion/1200/800',
+    bgImage: '/projects/rokeyla.jpg',
     bgOverlay: 'linear-gradient(to bottom, rgba(26,26,26,0.22) 0%, rgba(26,26,26,0.52) 48%, rgba(26,26,26,0.93) 88%), linear-gradient(170deg, rgba(0,255,156,0.14) 0%, transparent 60%)',
     hud: {
       tl:     'IMPACT: PERF_MAX',
@@ -362,8 +457,9 @@ const PROJECTS: Project[] = [
     glowColor: 'rgba(174,12,0,0.28)',
     sysType: 'TYPE: BRAND_ARCH // LEADERSHIP: AGILE_FLOW',
     payload: 'PAYLOAD_v1.0',
-    bgImage: 'https://picsum.photos/seed/zidio-brand/1200/800',
+    bgImage: '/projects/krkmotors.png',
     bgOverlay: 'linear-gradient(to bottom, rgba(26,26,26,0.28) 0%, rgba(26,26,26,0.58) 50%, rgba(26,26,26,0.93) 88%), linear-gradient(125deg, rgba(174,12,0,0.2) 0%, transparent 60%)',
+    link: 'https://krk-motors.vercel.app',
     hud: {
       tl:     'ARCH: BRAND',
       bl:     'SPRINTS: 3_CLEAN',
@@ -375,14 +471,50 @@ const PROJECTS: Project[] = [
   },
 ];
 
-// ─── Glitch character reveal ──────────────────────────────────────────────────
-function GlitchTitle({ text, entered }: { text: string; entered: boolean }) {
+// ─── Glitch character reveal + fault corruption ───────────────────────────────
+const FAULT_STRINGS = ['ERR_0x404', 'NULL_PTR', 'FAULT___', 'OVERFLOW', '0x000000'] as const;
+const FAULT_CHARS   = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789#@!_∆X';
+
+function GlitchTitle({
+  text,
+  entered,
+  isFault,
+}: {
+  text:    string;
+  entered: boolean;
+  isFault: boolean;
+}) {
   const [display, setDisplay] = useState(text);
   const rafRef      = useRef<number>(0);
   const resolvedRef = useRef<boolean[]>([]);
 
   useEffect(() => {
     if (!entered) return;
+    cancelAnimationFrame(rafRef.current);
+
+    if (isFault) {
+      // ── Continuous corruption loop — never resolves ────────────────────────
+      let frame = 0;
+      const tick = () => {
+        frame++;
+        // Every 10 frames snap to a fault string for 2 frames (visual stutter)
+        if (frame % 10 < 2) {
+          const err = FAULT_STRINGS[Math.floor(Math.random() * FAULT_STRINGS.length)];
+          setDisplay(err.slice(0, Math.max(text.length, err.length)).padEnd(text.length, '_'));
+        } else {
+          setDisplay(
+            text.split('').map(() =>
+              FAULT_CHARS[Math.floor(Math.random() * FAULT_CHARS.length)]
+            ).join('')
+          );
+        }
+        rafRef.current = requestAnimationFrame(tick);
+      };
+      rafRef.current = requestAnimationFrame(tick);
+      return () => cancelAnimationFrame(rafRef.current);
+    }
+
+    // ── Resolve left-to-right (entrance OR recovery from fault) ───────────────
     const chars = text.split('');
     resolvedRef.current = chars.map(() => false);
     let frame = 0;
@@ -410,7 +542,7 @@ function GlitchTitle({ text, entered }: { text: string; entered: boolean }) {
 
     rafRef.current = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(rafRef.current);
-  }, [entered, text]);
+  }, [entered, isFault, text]);
 
   return <>{display}</>;
 }
@@ -458,11 +590,13 @@ function BentoCard({
   index,
   onMouseEnter,
   onMouseLeave,
+  isFault,
 }: {
   project:      Project;
   index:        number;
   onMouseEnter: () => void;
   onMouseLeave: () => void;
+  isFault:      boolean;
 }) {
   const cardRef = useRef<HTMLDivElement>(null);
   const leakRef = useRef<HTMLDivElement>(null);
@@ -534,14 +668,20 @@ function BentoCard({
   const isSmall  = project.tier === 'small';
   const rowClass = isLarge ? 'lg:row-span-4' : 'lg:row-span-2';
   const delay    = Math.min(index * 0.08, 0.72);
+  const hasLink  = !!project.link;
+
+  const handleCardClick = () => {
+    if (hasLink) window.open(project.link, '_blank', 'noopener,noreferrer');
+  };
 
   return (
     <motion.div
       ref={cardRef}
+      data-bento-card="true"
       className={`col-span-12 ${project.col} ${rowClass} relative group ${
         isLarge  ? 'min-h-[300px] lg:min-h-[480px]' :
         isSmall  ? 'min-h-[200px] lg:min-h-[220px]' :
-                   'min-h-[240px] lg:min-h-[320px]'
+                   'min-h-[240px] lg:min-h-[320px]' 
       }`}
       style={{
         perspective: 900,
@@ -555,6 +695,8 @@ function BentoCard({
       onMouseMove={handleMouseMove}
       onMouseEnter={() => { setHovered(true); onMouseEnter(); }}
       onMouseLeave={handleLeave}
+      onClick={handleCardClick}
+      style={{ cursor: hasLink ? 'crosshair' : 'default' }}
     >
       {/* ── Glass shell ────────────────────────────────────────────────────── */}
       <div
@@ -709,7 +851,7 @@ function BentoCard({
                 textShadow: '0 2px 16px rgba(0,0,0,0.7)',
               }}
             >
-              <GlitchTitle text={project.name} entered={entered} />
+              <GlitchTitle text={project.name} entered={entered} isFault={isFault} />
             </h3>
 
             {/* Technical insight */}
@@ -761,6 +903,28 @@ function BentoCard({
             </div>
           </div>
         </div>
+
+        {/* Bottom sweep line on entrance */}
+        {/* Visit site badge — fades in on hover when link exists */}
+        {hasLink && (
+          <motion.div
+            className="absolute top-3 right-3 z-40 pointer-events-none hidden lg:flex items-center gap-1.5"
+            animate={{ opacity: hovered ? 1 : 0, y: hovered ? 0 : -4 }}
+            transition={{ duration: 0.18, ease: EASE }}
+            style={{
+              background: 'rgba(10,10,10,0.8)',
+              backdropFilter: 'blur(10px)',
+              WebkitBackdropFilter: 'blur(10px)',
+              border: `0.5px solid ${project.accentColor}55`,
+              padding: '4px 8px',
+            }}
+          >
+            <span style={{ fontFamily: 'monospace', fontSize: 6.5, letterSpacing: '0.18em', color: project.accentColor, fontWeight: 700, whiteSpace: 'nowrap' }}>
+              VISIT_SITE
+            </span>
+            <span style={{ fontFamily: 'monospace', fontSize: 8, color: project.accentColor }}>↗</span>
+          </motion.div>
+        )}
 
         {/* Bottom sweep line on entrance */}
         <motion.div
@@ -849,10 +1013,15 @@ function DesktopHeader({ entered }: { entered: boolean }) {
 
 // ─── ProjectBento ─────────────────────────────────────────────────────────────
 export function ProjectBento() {
-  const sectionRef = useRef<HTMLDivElement>(null);
+  const sectionRef = useRef<HTMLElement>(null);
   const gridRef    = useRef<HTMLDivElement>(null);
   const [sectionEntered, setSectionEntered] = useState(false);
   const [cursorActive,   setCursorActive]   = useState(false);
+  const [isSystemFault,  setIsSystemFault]  = useState(false);
+
+  // Refs are stable across renders — safe to use inside GSAP callbacks
+  const faultActiveRef = useRef(false);
+  const faultTimerRef  = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     const el = sectionRef.current;
@@ -866,13 +1035,27 @@ export function ProjectBento() {
       onEnter: () => setSectionEntered(true),
     });
 
-    // Velocity-based grid skew — fluid distortion
+    // Capture baseline Lenis duration so we can restore it on recovery
+    const baseDuration: number = (lenisInstance.current as any)?.options?.duration ?? 1.2;
+
+    const recover = () => {
+      faultActiveRef.current = false;
+      setIsSystemFault(false);
+      const l = lenisInstance.current as any;
+      if (l?.options) l.options.duration = baseDuration;
+      faultTimerRef.current = null;
+    };
+
+    // Velocity-based grid skew + fault detection
     const skewTrigger = ScrollTrigger.create({
       trigger: el,
       start: 'top bottom',
       end: 'bottom top',
       onUpdate: (self) => {
-        const vel  = self.getVelocity();
+        const vel    = self.getVelocity();
+        const absVel = Math.abs(vel);
+
+        // Skew distortion (existing)
         const skew = Math.max(-3.5, Math.min(3.5, vel / -7500));
         gsap.to(gridRef.current, {
           skewY: skew,
@@ -880,20 +1063,45 @@ export function ProjectBento() {
           ease: 'power3.out',
           overwrite: 'auto',
         });
+
+        // ── Fault detection ──────────────────────────────────────────────────
+        if (absVel > CRITICAL_VELOCITY) {
+          if (!faultActiveRef.current) {
+            faultActiveRef.current = true;
+            setIsSystemFault(true);
+            // Make Lenis feel heavy — duration is read per scroll-call
+            const l = lenisInstance.current as any;
+            if (l?.options) l.options.duration = 3.5;
+          }
+          // Debounce recovery: reset timer on each new high-velocity frame
+          if (faultTimerRef.current) clearTimeout(faultTimerRef.current);
+          faultTimerRef.current = setTimeout(recover, 700);
+        }
       },
     });
 
-    return () => { entryTrigger.kill(); skewTrigger.kill(); };
+    return () => {
+      if (faultTimerRef.current) clearTimeout(faultTimerRef.current);
+      entryTrigger.kill();
+      skewTrigger.kill();
+    };
   }, []);
 
   return (
     <>
+      <AuditProgressBar sectionRef={sectionRef} isSystemFault={isSystemFault} />
       <BentoCursor active={cursorActive} />
 
       <section
         ref={sectionRef}
         className="relative w-full py-20 lg:py-28 px-4 sm:px-6 lg:px-10 xl:px-14"
-        style={{ background: '#0E0E0E', cursor: cursorActive ? 'none' : 'auto' }}
+        style={{
+          background: '#0E0E0E',
+          cursor: cursorActive ? 'none' : 'auto',
+          // Fast onset (0.18s) → alarming. Slow recovery (0.5s) → deliberate reboot feel.
+          filter: isSystemFault ? 'hue-rotate(90deg) contrast(1.2)' : 'none',
+          transition: isSystemFault ? 'filter 0.18s ease' : 'filter 0.5s ease',
+        }}
         onMouseEnter={() => setCursorActive(true)}
         onMouseLeave={() => setCursorActive(false)}
       >
@@ -932,6 +1140,7 @@ export function ProjectBento() {
                     index={i}
                     onMouseEnter={() => setCursorActive(true)}
                     onMouseLeave={() => setCursorActive(false)}
+                    isFault={isSystemFault}
                   />
                 </React.Fragment>
               );

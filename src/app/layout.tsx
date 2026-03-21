@@ -3,6 +3,8 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { SmoothScroll } from "@/components/SmoothScroll";
 import { GrainOverlay } from "@/components/GrainOverlay";
+import { Navbar } from "@/components/Navbar";
+import { ScrollToTop } from "@/components/ScrollToTop";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -31,7 +33,9 @@ export default function RootLayout({
     >
       <body className="min-h-full flex flex-col bg-cybersage-charcoal">
         <SmoothScroll>
+          <Navbar />
           {children}
+          <ScrollToTop />
           <GrainOverlay />
         </SmoothScroll>
       </body>

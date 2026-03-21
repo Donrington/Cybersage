@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { AuditProgressBar } from './AuditProgressBar';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -181,6 +182,7 @@ function RightCard({ milestone }: { milestone: Milestone }) {
 
   return (
     <div
+      data-bento-card
       className="relative w-full p-5 sm:p-7"
       style={{
         background:          'rgba(26,26,26,0.82)',
@@ -726,10 +728,12 @@ function DesktopTimeline() {
 
 // ─── ExperienceTimeline ───────────────────────────────────────────────────────
 export function ExperienceTimeline() {
-  const isDesktop = useIsDesktop();
+  const isDesktop   = useIsDesktop();
+  const sectionRef  = useRef<HTMLElement>(null);
 
   return (
-    <section className="relative w-full bg-cybersage-charcoal">
+    <section ref={sectionRef} className="relative w-full bg-cybersage-charcoal">
+      <AuditProgressBar sectionRef={sectionRef} totalCards={14} />
       <div className="absolute top-0 left-0 right-0 h-px z-10 bg-linear-to-r from-transparent via-white/8 to-transparent" />
 
       {/* Section header */}
