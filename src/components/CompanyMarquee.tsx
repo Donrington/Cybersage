@@ -19,8 +19,8 @@ const COMPANIES = [
   'TWERK QUEEN',
   'ROKEYLA',
   'AMANIGO',
-  'NBC',
   'DEJAII',
+  'MYRA KALEHER',
 ];
 
 // Diagnostic entry codes — zero-padded

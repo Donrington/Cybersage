@@ -10,7 +10,9 @@
       "Bash(npm install:*)",
       "Bash(curl -s http://localhost:3000)",
       "Bash(find c:UsersWindowsDesktopcybersage-v2srccomponents -type f -name *)",
-      "Bash(find c:UsersWindowsDesktopcybersage-v2srclib -type f -name *)"
+      "Bash(find c:UsersWindowsDesktopcybersage-v2srclib -type f -name *)",
+      "Bash(npx tsc:*)",
+      "Bash(echo \"Exit code: $?\")"
     ],
     "additionalDirectories": [
       "\\tmp"

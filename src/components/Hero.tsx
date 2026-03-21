@@ -234,7 +234,7 @@ export function Hero() {
         className="relative z-30 flex items-center justify-between px-6 sm:px-8 md:px-12 lg:px-14 py-3 sm:py-4 lg:py-5 border-b border-white/4"
       >
         <span className="font-mono text-[8px] sm:text-[9px] md:text-[10px] tracking-[0.3em] sm:tracking-[0.35em] lg:tracking-[0.45em] text-cybersage-cream/20 uppercase select-none">
-          Cybersage © 2025
+          Cybersage
         </span>
 
         <div className="flex items-center gap-1 sm:gap-2">
