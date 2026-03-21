@@ -679,7 +679,7 @@ function BentoCard({
   };
 
   return (
-    <motion.div
+    <motion.article
       ref={cardRef}
       data-bento-card="true"
       className={`col-span-12 ${project.col} ${rowClass} relative group ${
@@ -724,6 +724,8 @@ function BentoCard({
           style={{ y: bgY, scale: 1.22, transformOrigin: 'center center' }}
         >
           <div
+            role="img"
+            aria-label={`${project.name} — ${project.stack.join(', ')} Portfolio by Abakwe Carrington`}
             className="absolute inset-0"
             style={{
               backgroundImage: `url(${project.bgImage})`,
@@ -941,7 +943,7 @@ function BentoCard({
           transition={{ duration: 0.9, delay: delay + 0.3, ease: EASE }}
         />
       </div>
-    </motion.div>
+    </motion.article>
   );
 }
 

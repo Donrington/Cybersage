@@ -325,8 +325,8 @@ export function Hero() {
               transition={{ duration: 0.7, delay: 1.1, ease: EASE }}
               className="flex flex-wrap items-center gap-2 sm:gap-3 lg:gap-4 relative"
             >
-              <CTAButton href="#work" label="View Work" hexAddr="0xWORK" isPrimary />
-              <CTAButton href="#contact" label="Contact" hexAddr="0xCONT" />
+              <CTAButton href="#bento" label="View Work" hexAddr="0xWORK" isPrimary />
+              <CTAButton href="#uplink" label="Contact" hexAddr="0xCONT" />
             </motion.div>
           </div>
 
