@@ -13,11 +13,11 @@ const EMERALD = '#00FF9C';
 const FLAME   = '#FF5A1F';
 
 const NAV_LINKS = [
-  { label: '[01]_NARRATIVE', id: 'narrative' },
-  { label: '[02]_AUDIT',     id: 'audit'     },
-  { label: '[03]_BENTO',     id: 'bento'     },
-  { label: '[04]_INTEL',     id: 'intel'     },
-  { label: '[05]_UPLINK',    id: 'uplink'    },
+  { label: '[01]_ABOUT',      id: 'narrative' },
+  { label: '[02]_EXPERIENCE', id: 'audit'     },
+  { label: '[03]_PROJECTS',   id: 'bento'     },
+  { label: '[04]_SKILLS',     id: 'intel'     },
+  { label: '[05]_CONTACT',    id: 'uplink'    },
 ];
 
 // ─── Blinking status dot ──────────────────────────────────────────────────────
@@ -240,7 +240,7 @@ export function Navbar() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, delay: 0.5, ease: EASE }}
         style={{
-          position: 'fixed', bottom: 28, right: 24, zIndex: 201,
+          position: 'fixed', bottom: 28, left: 24, zIndex: 201,
           pointerEvents: 'auto',
         }}
       >

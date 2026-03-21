@@ -12,11 +12,11 @@ const EMERALD = '#00FF9C';
 const FLAME   = '#FF5A1F';
 
 const NAV_LINKS = [
-  { label: '[01]_NARRATIVE', id: 'narrative', num: '01' },
-  { label: '[02]_AUDIT',     id: 'audit',     num: '02' },
-  { label: '[03]_BENTO',     id: 'bento',     num: '03' },
-  { label: '[04]_INTEL',     id: 'intel',     num: '04' },
-  { label: '[05]_UPLINK',    id: 'uplink',    num: '05' },
+  { label: '[01]_ABOUT',      id: 'narrative', num: '01' },
+  { label: '[02]_EXPERIENCE', id: 'audit',     num: '02' },
+  { label: '[03]_PROJECTS',   id: 'bento',     num: '03' },
+  { label: '[04]_SKILLS',     id: 'intel',     num: '04' },
+  { label: '[05]_CONTACT',    id: 'uplink',    num: '05' },
 ];
 
 const GLITCH_CHARS = '!@#$%^&*<>[]{}|/~`';
@@ -163,7 +163,7 @@ export function MobileSidebar({ open, onClose }: MobileSidebarProps) {
     return () => window.removeEventListener('keydown', fn);
   }, [onClose]);
 
-  const bgColor = useTransform(bgOpacity, v => `rgba(6,6,6,${v.toFixed(3)})`);
+  const bgColor = useTransform(bgOpacity, v => `rgba(6,6,6,${Math.min(v + 0.72, 0.96).toFixed(3)})`);
 
   return (
     <AnimatePresence>
@@ -178,6 +178,8 @@ export function MobileSidebar({ open, onClose }: MobileSidebarProps) {
           style={{
             position: 'fixed', inset: 0, zIndex: 190,
             background: bgColor,
+            backdropFilter: 'blur(24px)',
+            WebkitBackdropFilter: 'blur(24px)',
             overflow: 'hidden',
           }}
         >
