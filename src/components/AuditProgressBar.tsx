@@ -12,6 +12,7 @@ import {
 } from 'framer-motion';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { useIsMobile } from '@/lib/useIsMobile';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -68,9 +69,10 @@ function BlinkingStatus({ complete, isFault }: { complete: boolean; isFault: boo
 // ─── AuditProgressBar ─────────────────────────────────────────────────────────
 export function AuditProgressBar({ sectionRef, isSystemFault = false, totalCards = 12 }: AuditProgressBarProps) {
   const fillRef    = useRef<HTMLDivElement>(null);
-  // Mirror prop into a ref so the GSAP onUpdate closure reads it without staling
   const isFaultRef = useRef(false);
   isFaultRef.current = isSystemFault;
+  const isMobile   = useIsMobile();
+  const rafPending = useRef(false);
 
   const [mounted,      setMounted]      = useState(false);
   const [visible,      setVisible]      = useState(false);
@@ -144,14 +146,19 @@ export function AuditProgressBar({ sectionRef, isSystemFault = false, totalCards
       onUpdate: (self) => {
         rawPct.set(self.progress * 100);
 
-        // Direct DOM glow — zero re-renders; skip during fault (fault owns the glow)
-        if (fillRef.current && !isFaultRef.current) {
-          const vel  = Math.abs(self.getVelocity());
-          const glow = Math.min(vel / 1800, 1);
-          fillRef.current.style.boxShadow = glow > 0.08
-            ? `0 0 ${(6 + glow * 14).toFixed(1)}px rgba(0,255,156,${(0.55 + glow * 0.45).toFixed(2)}), ` +
-              `0 0 ${(3 + glow * 8).toFixed(1)}px rgba(174,12,0,${(0.35 + glow * 0.4).toFixed(2)})`
-            : 'none';
+        // Direct DOM glow — zero re-renders; disabled on mobile, throttled via rAF on desktop
+        if (!isMobile && fillRef.current && !isFaultRef.current && !rafPending.current) {
+          rafPending.current = true;
+          requestAnimationFrame(() => {
+            rafPending.current = false;
+            if (!fillRef.current || isFaultRef.current) return;
+            const vel  = Math.abs(self.getVelocity());
+            const glow = Math.min(vel / 1800, 1);
+            fillRef.current.style.boxShadow = glow > 0.08
+              ? `0 0 ${(6 + glow * 14).toFixed(1)}px rgba(0,255,156,${(0.55 + glow * 0.45).toFixed(2)}), ` +
+                `0 0 ${(3 + glow * 8).toFixed(1)}px rgba(174,12,0,${(0.35 + glow * 0.4).toFixed(2)})`
+              : 'none';
+          });
         }
       },
     });

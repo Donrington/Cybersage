@@ -5,6 +5,7 @@ import { motion } from 'framer-motion';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { AuditProgressBar } from './AuditProgressBar';
+import { useIsMobile } from '@/lib/useIsMobile';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -493,10 +494,10 @@ export function NetworkIntel() {
   const colBRef          = useRef<HTMLDivElement>(null);
   const tweenARef        = useRef<gsap.core.Tween | null>(null);
   const tweenBRef        = useRef<gsap.core.Tween | null>(null);
-  // Stable refs used inside GSAP callbacks (avoids stale closures)
   const isHoverRef       = useRef(false);
   const chromaTimerRef   = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [entered, setEntered] = useState(false);
+  const isMobile = useIsMobile();
 
   // Column A: natural order, scrolls UP. Column B: reversed, scrolls DOWN.
   // Each duplicated so GSAP can loop seamlessly (y snaps at exactly half-height).
@@ -536,7 +537,16 @@ export function NetworkIntel() {
       }
     }, 180);
 
-    // ── Velocity sync: speed boost + chromatic aberration ─────────────────
+    if (isMobile) {
+      return () => {
+        clearTimeout(id);
+        entryTrigger.kill();
+        tweenARef.current?.kill();
+        tweenBRef.current?.kill();
+      };
+    }
+
+    // ── Velocity sync + chromatic aberration — desktop only ───────────────
     const clearChroma = () => {
       if (marqueeWindowRef.current) marqueeWindowRef.current.style.filter = 'none';
       if (!isHoverRef.current) {
@@ -552,13 +562,11 @@ export function NetworkIntel() {
       onUpdate: (self) => {
         const absVel = Math.abs(self.getVelocity());
         if (absVel > VEL_BOOST) {
-          // Speed boost — proportional, capped at 2.8× (direct set, no gsap.to)
           if (!isHoverRef.current) {
             const boost = Math.min(1 + absVel / 6000, 2.8);
             tweenARef.current?.timeScale(boost);
             tweenBRef.current?.timeScale(boost);
           }
-          // 1px chromatic aberration — direct DOM, zero re-renders
           if (marqueeWindowRef.current) {
             const intensity = Math.min((absVel - VEL_BOOST) / 4000, 1);
             const px        = (intensity * 1.2).toFixed(2);
@@ -567,7 +575,6 @@ export function NetworkIntel() {
               `drop-shadow(-${px}px 0 rgba(255,0,100,${alpha})) ` +
               `drop-shadow(${px}px 0 rgba(0,200,255,${alpha}))`;
           }
-          // Debounce clear — resets 450 ms after velocity drops
           if (chromaTimerRef.current) clearTimeout(chromaTimerRef.current);
           chromaTimerRef.current = setTimeout(clearChroma, 450);
         }
@@ -599,7 +606,7 @@ export function NetworkIntel() {
       section.removeEventListener('mouseenter', handleEnter);
       section.removeEventListener('mouseleave', handleLeave);
     };
-  }, []);
+  }, [isMobile]);
 
   return (
     <motion.section

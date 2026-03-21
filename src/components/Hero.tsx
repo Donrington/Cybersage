@@ -7,6 +7,7 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { Wifi, Mouse, ArrowUpRight } from 'lucide-react';
 import { AsciiCanvas } from './AsciiCanvas';
 import { PortalMarquee } from './PortalMarquee';
+import { useIsMobile } from '@/lib/useIsMobile';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -106,8 +107,20 @@ function HUDReadout() {
   );
 }
 
-// Bento scanning lines
-function BentoLines() {
+// Bento scanning lines — static on mobile (no infinite animations)
+function BentoLines({ mobile }: { mobile: boolean }) {
+  if (mobile) {
+    return (
+      <div className="absolute inset-0 pointer-events-none opacity-[0.025]">
+        {[...Array(8)].map((_, i) => (
+          <div key={`h-${i}`} className="absolute w-full h-px bg-cybersage-emerald" style={{ top: `${(i + 1) * 12.5}%` }} />
+        ))}
+        {[...Array(3)].map((_, i) => (
+          <div key={`v-${i}`} className="absolute h-full w-px bg-cybersage-emerald" style={{ left: `${(i + 1) * 25}%` }} />
+        ))}
+      </div>
+    );
+  }
   return (
     <div className="absolute inset-0 pointer-events-none opacity-[0.04]">
       {/* Horizontal lines */}
@@ -185,10 +198,11 @@ export function Hero() {
   const leftPaneRef = useRef<HTMLDivElement>(null);
   const [isGlitching, setIsGlitching] = useState(false);
   const [isLeftPaneHovered, setIsLeftPaneHovered] = useState(false);
+  const isMobile = useIsMobile();
 
-  // Scroll parallax on the right pane
+  // Scroll parallax on the right pane — desktop only
   useEffect(() => {
-    if (!rightRef.current) return;
+    if (!rightRef.current || isMobile) return;
     gsap.to(rightRef.current, {
       yPercent: -4,
       ease: 'none',
@@ -199,7 +213,7 @@ export function Hero() {
         scrub: 2,
       },
     });
-  }, []);
+  }, [isMobile]);
 
   // Glitch trigger on left pane hover
   useEffect(() => {
@@ -253,7 +267,7 @@ export function Hero() {
           ref={leftPaneRef}
           className="relative z-20 flex w-full lg:w-[42%] flex-col px-6 sm:px-8 md:px-12 lg:px-14 py-12 lg:py-0 pb-0 lg:pb-0 gap-6 sm:gap-7 lg:gap-9 overflow-hidden"
         >
-          <BentoLines />
+          <BentoLines mobile={isMobile} />
 
           {/* Main content section — pushed up */}
           <div className="flex flex-col gap-6 sm:gap-7 lg:gap-9 flex-1 justify-end">
@@ -297,7 +311,7 @@ export function Hero() {
               transition={{ duration: 0.8, delay: 0.85 }}
               className="font-mono text-[8px] sm:text-[9px] md:text-[10px] lg:text-[11px] tracking-[0.15em] sm:tracking-[0.18em] md:tracking-[0.22em] text-cybersage-cream/30 uppercase"
               style={{
-                filter: isGlitching ? 'drop-shadow(2px 0 0 #AE0C00) drop-shadow(-2px 0 0 #00FF9C)' : 'none',
+                filter: (!isMobile && isGlitching) ? 'drop-shadow(2px 0 0 #AE0C00) drop-shadow(-2px 0 0 #00FF9C)' : 'none',
                 transition: 'filter 0.1s',
               }}
             >

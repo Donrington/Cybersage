@@ -12,6 +12,7 @@ import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { AuditProgressBar } from './AuditProgressBar';
 import { lenisInstance } from './SmoothScroll';
+import { useIsMobile } from '@/lib/useIsMobile';
 
 const CRITICAL_VELOCITY = 2500;
 
@@ -591,12 +592,14 @@ function BentoCard({
   onMouseEnter,
   onMouseLeave,
   isFault,
+  isMobile,
 }: {
   project:      Project;
   index:        number;
   onMouseEnter: () => void;
   onMouseLeave: () => void;
   isFault:      boolean;
+  isMobile:     boolean;
 }) {
   const cardRef = useRef<HTMLDivElement>(null);
   const leakRef = useRef<HTMLDivElement>(null);
@@ -614,7 +617,7 @@ function BentoCard({
     target: cardRef,
     offset: ['start end', 'end start'],
   });
-  const bgY = useTransform(scrollYProgress, [0, 1], ['0%', '-18%']);
+  const bgY = useTransform(scrollYProgress, [0, 1], isMobile ? ['0%', '0%'] : ['0%', '-18%']);
 
   // ScrollTrigger entrance
   useEffect(() => {
@@ -641,6 +644,7 @@ function BentoCard({
   }, [project.bgImage, project.tier]);
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (isMobile) return;
     const rect = cardRef.current?.getBoundingClientRect();
     if (!rect) return;
     const cx = e.clientX - rect.left  - rect.width  / 2;
@@ -683,7 +687,9 @@ function BentoCard({
         isSmall  ? 'min-h-[200px] lg:min-h-[220px]' :
                    'min-h-[240px] lg:min-h-[320px]' 
       }`}
-      style={{
+      style={isMobile ? {
+        cursor: hasLink ? 'crosshair' : 'default',
+      } : {
         perspective: 900,
         rotateX: sRotateX,
         rotateY: sRotateY,
@@ -1015,6 +1021,7 @@ function DesktopHeader({ entered }: { entered: boolean }) {
 export function ProjectBento() {
   const sectionRef = useRef<HTMLElement>(null);
   const gridRef    = useRef<HTMLDivElement>(null);
+  const isMobile   = useIsMobile();
   const [sectionEntered, setSectionEntered] = useState(false);
   const [cursorActive,   setCursorActive]   = useState(false);
   const [isSystemFault,  setIsSystemFault]  = useState(false);
@@ -1046,7 +1053,9 @@ export function ProjectBento() {
       faultTimerRef.current = null;
     };
 
-    // Velocity-based grid skew + fault detection
+    // Velocity-based grid skew + fault detection — desktop only
+    if (isMobile) return () => { entryTrigger.kill(); };
+
     const skewTrigger = ScrollTrigger.create({
       trigger: el,
       start: 'top bottom',
@@ -1085,12 +1094,12 @@ export function ProjectBento() {
       entryTrigger.kill();
       skewTrigger.kill();
     };
-  }, []);
+  }, [isMobile]);
 
   return (
     <>
       <AuditProgressBar sectionRef={sectionRef} isSystemFault={isSystemFault} />
-      <BentoCursor active={cursorActive} />
+      {!isMobile && <BentoCursor active={cursorActive} />}
 
       <section
         ref={sectionRef}
@@ -1141,6 +1150,7 @@ export function ProjectBento() {
                     onMouseEnter={() => setCursorActive(true)}
                     onMouseLeave={() => setCursorActive(false)}
                     isFault={isSystemFault}
+                    isMobile={isMobile}
                   />
                 </React.Fragment>
               );

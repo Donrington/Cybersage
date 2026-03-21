@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { AuditProgressBar } from './AuditProgressBar';
+import { useIsMobile } from '@/lib/useIsMobile';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -125,7 +126,7 @@ const MILESTONES: Milestone[] = [
   },
 ];
 
-// ─── Pixel-grit glitch variants ────────────────────────────────────────────────
+// ─── Pixel-grit glitch variants — desktop only ─────────────────────────────────
 const glitchEnter = {
   initial: {
     opacity: 0,
@@ -162,18 +163,12 @@ const glitchEnter = {
   },
 };
 
-// ─── useIsDesktop ─────────────────────────────────────────────────────────────
-function useIsDesktop() {
-  const [isDesktop, setIsDesktop] = useState(false);
-  useEffect(() => {
-    const mq = window.matchMedia('(min-width: 1024px)');
-    setIsDesktop(mq.matches);
-    const handler = (e: MediaQueryListEvent) => setIsDesktop(e.matches);
-    mq.addEventListener('change', handler);
-    return () => mq.removeEventListener('change', handler);
-  }, []);
-  return isDesktop;
-}
+// ─── Simple fade — mobile replacement for glitchEnter ─────────────────────────
+const fadeEnter = {
+  initial: { opacity: 0, y: 8 },
+  animate: { opacity: 1, y: 0, transition: { duration: 0.38, ease: EASE } },
+  exit:    { opacity: 0, transition: { duration: 0.18 } },
+};
 
 // ─── Shared card content ──────────────────────────────────────────────────────
 function RightCard({ milestone }: { milestone: Milestone }) {
@@ -305,8 +300,7 @@ function MobileMilestoneSection({
 }) {
   const sectionRef  = useRef<HTMLDivElement>(null);
   const headerRef   = useRef<HTMLDivElement>(null);
-  const [revealed,  setRevealed]  = useState(false);
-  const [sectionPct, setSectionPct] = useState(0);
+  const [revealed, setRevealed] = useState(false);
 
   // z-index: later entries stack on top of earlier ones (push-up effect)
   const zIndex = total - index;
@@ -315,7 +309,7 @@ function MobileMilestoneSection({
     const section = sectionRef.current;
     if (!section) return;
 
-    // One-shot: trigger pixel-grit reveal on header entry
+    // One-shot reveal — no continuous per-frame updates on mobile
     const revealST = ScrollTrigger.create({
       trigger: section,
       start:   'top 85%',
@@ -323,15 +317,7 @@ function MobileMilestoneSection({
       onEnter: () => setRevealed(true),
     });
 
-    // Continuous: track per-section scroll progress for progress bar
-    const progressST = ScrollTrigger.create({
-      trigger: section,
-      start:   'top top',
-      end:     'bottom top',
-      onUpdate: (self) => setSectionPct(self.progress),
-    });
-
-    return () => { revealST.kill(); progressST.kill(); };
+    return () => { revealST.kill(); };
   }, []);
 
   const dotColor   = milestone.isPresent ? '#00FF9C' : '#AE0C00';
@@ -361,18 +347,11 @@ function MobileMilestoneSection({
           transition={{ duration: 0.6, ease: EASE, delay: 0.2 }}
         />
 
-        {/* Vertical progress bar (right edge) */}
+        {/* Vertical accent (right edge) — static on mobile */}
         <div
           className="absolute right-0 top-0 bottom-0 w-0.5"
-          style={{ background: 'rgba(249,255,246,0.05)' }}
-        >
-          <motion.div
-            className="w-full origin-top"
-            style={{ background: dotColor, boxShadow: `0 0 6px ${dotColor}99` }}
-            animate={{ height: `${sectionPct * 100}%` }}
-            transition={{ duration: 0.05, ease: 'linear' }}
-          />
-        </div>
+          style={{ background: `linear-gradient(to bottom, ${dotColor}33, transparent)` }}
+        />
 
         <div className="px-5 py-3.5 pr-6">
           {/* Meta row */}
@@ -399,13 +378,13 @@ function MobileMilestoneSection({
             )}
           </div>
 
-          {/* Company name — pixel-grit reveal */}
+          {/* Company name — simple fade reveal on mobile */}
           <div className="overflow-hidden">
             <AnimatePresence>
               {revealed && (
                 <motion.h3
-                  initial={glitchEnter.initial}
-                  animate={glitchEnter.animate}
+                  initial={fadeEnter.initial}
+                  animate={fadeEnter.animate}
                   className="font-black uppercase leading-tight"
                   style={{
                     fontFamily:    '"Inter", system-ui, sans-serif',
@@ -414,9 +393,6 @@ function MobileMilestoneSection({
                     color: milestone.isPresent
                       ? '#F9FFF6'
                       : 'rgba(249,255,246,0.6)',
-                    textShadow: milestone.isPresent
-                      ? `0 0 20px ${dotColor}33`
-                      : 'none',
                   }}
                 >
                   {milestone.company}
@@ -728,7 +704,8 @@ function DesktopTimeline() {
 
 // ─── ExperienceTimeline ───────────────────────────────────────────────────────
 export function ExperienceTimeline() {
-  const isDesktop   = useIsDesktop();
+  const isMobile    = useIsMobile();
+  const isDesktop   = !isMobile;
   const sectionRef  = useRef<HTMLElement>(null);
 
   return (

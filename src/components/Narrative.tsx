@@ -5,23 +5,11 @@ import { motion } from 'framer-motion';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { AuditProgressBar } from './AuditProgressBar';
+import { useIsMobile } from '@/lib/useIsMobile';
 
 gsap.registerPlugin(ScrollTrigger);
 
 const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];
-
-// ─── useIsDesktop ─────────────────────────────────────────────────────────────
-function useIsDesktop() {
-  const [isDesktop, setIsDesktop] = useState(false);
-  useEffect(() => {
-    const mq = window.matchMedia('(min-width: 1024px)');
-    setIsDesktop(mq.matches);
-    const handler = (e: MediaQueryListEvent) => setIsDesktop(e.matches);
-    mq.addEventListener('change', handler);
-    return () => mq.removeEventListener('change', handler);
-  }, []);
-  return isDesktop;
-}
 
 // ─── Data stream particles ────────────────────────────────────────────────────
 function DataParticles({ velocityRef }: { velocityRef: React.RefObject<number> }) {
@@ -326,9 +314,12 @@ export function Narrative() {
   const velocityRef = useRef(0);
 
   const [activeIndex, setActiveIndex] = useState(-1);
-  const isDesktop = useIsDesktop();
+  const isMobile = useIsMobile();
+  const isDesktop = !isMobile;
 
+  // ── Desktop: GSAP warp + velocity distortion ─────────────────────────────
   useEffect(() => {
+    if (!isDesktop) return;
     const section = sectionRef.current;
     const stage   = stageRef.current;
     const layer1  = layer1Ref.current;
@@ -338,7 +329,6 @@ export function Narrative() {
 
     const vw = window.innerWidth;
 
-    // ── Pin + Z-axis warp ────────────────────────────────────────────────────
     const tl = gsap.timeline({
       scrollTrigger: {
         trigger: section,
@@ -367,7 +357,6 @@ export function Narrative() {
       { z: -300, scale: 0.35, x:  vw * 0.35,  opacity: 0   },
       { z:  260, scale: 1.30, x: -vw * 1.35,  opacity: 1,   ease: 'none' }, 0);
 
-    // ── Velocity distortion ──────────────────────────────────────────────────
     const velTrigger = ScrollTrigger.create({
       trigger: section,
       start:   'top top',
@@ -409,7 +398,37 @@ export function Narrative() {
       velTrigger.kill();
       window.removeEventListener('resize', onResize);
     };
-  }, []);
+  }, [isDesktop]);
+
+  // ── Mobile: auto-cycle panels when section is in viewport ────────────────
+  useEffect(() => {
+    if (!isMobile) return;
+    const section = sectionRef.current;
+    if (!section) return;
+
+    let intervalId: ReturnType<typeof setInterval>;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setActiveIndex(0);
+          let idx = 0;
+          intervalId = setInterval(() => {
+            idx = (idx + 1) % PANELS.length;
+            setActiveIndex(idx);
+          }, 2800);
+        } else {
+          clearInterval(intervalId);
+          setActiveIndex(-1);
+        }
+      },
+      { threshold: 0.4 },
+    );
+    observer.observe(section);
+    return () => {
+      observer.disconnect();
+      clearInterval(intervalId);
+    };
+  }, [isMobile]);
 
   return (
     <section
@@ -417,15 +436,15 @@ export function Narrative() {
       className="relative h-screen w-full overflow-hidden bg-cybersage-charcoal"
     >
       <AuditProgressBar sectionRef={sectionRef} totalCards={0} />
-      <DataParticles velocityRef={velocityRef} />
+      {!isMobile && <DataParticles velocityRef={velocityRef} />}
 
       <div className="absolute top-0 left-0 right-0 h-px z-20 bg-linear-to-r from-transparent via-white/8 to-transparent" />
 
-      {/* 3D stage */}
+      {/* 3D stage — desktop only */}
       <div
         ref={stageRef}
         className="absolute inset-0"
-        style={{ perspective: '900px', perspectiveOrigin: '50% 50%' }}
+        style={isDesktop ? { perspective: '900px', perspectiveOrigin: '50% 50%' } : { display: 'none' }}
       >
         <div
           ref={layer1Ref}

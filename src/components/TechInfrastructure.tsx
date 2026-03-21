@@ -17,6 +17,7 @@ import {
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { AuditProgressBar } from './AuditProgressBar';
+import { useIsMobile } from '@/lib/useIsMobile';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -234,7 +235,7 @@ function ScanReadout({
 }
 
 // ─── CoreRings — multi-ring SVG that reacts to scroll velocity ────────────────
-function CoreRings({ isEntered }: { isEntered: boolean }) {
+function CoreRings({ isEntered, isMobile }: { isEntered: boolean; isMobile: boolean }) {
   const r1 = useRef<SVGGElement>(null);
   const r2 = useRef<SVGGElement>(null);
   const r3 = useRef<SVGGElement>(null);
@@ -249,30 +250,33 @@ function CoreRings({ isEntered }: { isEntered: boolean }) {
     t2.current = gsap.to(r2.current, { rotation: -360, duration: 9,  repeat: -1, ease: 'none', transformOrigin: '40px 40px' });
     t3.current = gsap.to(r3.current, { rotation: 360,  duration: 22, repeat: -1, ease: 'none', transformOrigin: '40px 40px' });
 
-    const velTrigger = ScrollTrigger.create({
-      onUpdate(self) {
-        const vel = Math.abs(self.getVelocity());
-        if (vel > 150) {
-          const boost = Math.min(1 + vel / 1200, 7);
-          t1.current?.timeScale(boost);
-          t2.current?.timeScale(boost);
-          t3.current?.timeScale(boost);
-          if (recovery.current) clearTimeout(recovery.current);
-          recovery.current = setTimeout(() => {
-            t1.current?.timeScale(1);
-            t2.current?.timeScale(1);
-            t3.current?.timeScale(1);
-          }, 450);
-        }
-      },
-    });
+    let velTrigger: ReturnType<typeof ScrollTrigger.create> | null = null;
+    if (!isMobile) {
+      velTrigger = ScrollTrigger.create({
+        onUpdate(self) {
+          const vel = Math.abs(self.getVelocity());
+          if (vel > 150) {
+            const boost = Math.min(1 + vel / 1200, 7);
+            t1.current?.timeScale(boost);
+            t2.current?.timeScale(boost);
+            t3.current?.timeScale(boost);
+            if (recovery.current) clearTimeout(recovery.current);
+            recovery.current = setTimeout(() => {
+              t1.current?.timeScale(1);
+              t2.current?.timeScale(1);
+              t3.current?.timeScale(1);
+            }, 450);
+          }
+        },
+      });
+    }
 
     return () => {
       t1.current?.kill(); t2.current?.kill(); t3.current?.kill();
-      velTrigger.kill();
+      velTrigger?.kill();
       if (recovery.current) clearTimeout(recovery.current);
     };
-  }, [isEntered]);
+  }, [isEntered, isMobile]);
 
   const C = 40;
   return (
@@ -587,8 +591,10 @@ export function TechInfrastructure() {
   const [stageSize,  setStageSize]  = useState({ w: 900, h: 560 });
   const [hoveredId,  setHoveredId]  = useState<string | null>(null);
 
-  // rAF-throttled mouse position
-  const mouse = useMousePosition(stageRef as React.RefObject<HTMLElement | null>);
+  const isMobile = useIsMobile();
+
+  // rAF-throttled mouse position — desktop only (no pointer on touch)
+  const mouse = useMousePosition(isMobile ? { current: null } as React.RefObject<HTMLElement | null> : stageRef as React.RefObject<HTMLElement | null>);
 
   // Mouse parallax springs for 3D grid
   const paraX = useMotionValue(0);
@@ -656,33 +662,33 @@ export function TechInfrastructure() {
     setNodeCoords(coords);
   }, [isEntered, stageSize]);
 
-  // ── Mouse → parallax values ────────────────────────────────────────────────
+  // ── Mouse → parallax values — desktop only ────────────────────────────────
   useEffect(() => {
-    if (!stageRef.current) return;
+    if (isMobile || !stageRef.current) return;
     const nx = (mouse.x / stageSize.w - 0.5) * 2;
     const ny = (mouse.y / stageSize.h - 0.5) * 2;
     paraX.set(nx * 16);
     paraY.set(ny * 9);
-  }, [mouse, stageSize, paraX, paraY]);
+  }, [mouse, stageSize, paraX, paraY, isMobile]);
 
-  // ── GSAP slow-float tilt on the grid ──────────────────────────────────────
+  // ── GSAP slow-float tilt on the grid — desktop only ───────────────────────
   useEffect(() => {
     const g = gridRef.current;
-    if (!g) return;
+    if (!g || isMobile) return;
     const t = gsap.to(g, {
       rotateX: '+=2', rotateY: '-=1.2',
       duration: 7, yoyo: true, repeat: -1, ease: 'sine.inOut',
     });
     return () => { t.kill(); };
-  }, []);
+  }, [isMobile]);
 
-  // ── CRT scanline scroll ────────────────────────────────────────────────────
+  // ── CRT scanline scroll — desktop only ────────────────────────────────────
   useEffect(() => {
     const el = scanRef.current;
-    if (!el) return;
+    if (!el || isMobile) return;
     const t = gsap.to(el, { backgroundPositionY: '+=120px', duration: 4, repeat: -1, ease: 'none' });
     return () => { t.kill(); };
-  }, []);
+  }, [isMobile]);
 
   return (
     <section
@@ -814,7 +820,7 @@ export function TechInfrastructure() {
                 willChange: 'transform',
               }}
             >
-              <CoreRings isEntered={isEntered} />
+              <CoreRings isEntered={isEntered} isMobile={isMobile} />
               <div style={{ marginTop: 6, fontFamily: FONT_DISPLAY, fontSize: 7, letterSpacing: '0.2em', color: '#00FF9C', fontWeight: 900, whiteSpace: 'nowrap', textShadow: '0 0 10px rgba(0,255,156,0.5)' }}>
                 CYBERSAGE_CORE
               </div>
@@ -948,7 +954,7 @@ export function TechInfrastructure() {
           transition={{ duration: 0.7, delay: 0.6, ease: EASE }}
           style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', paddingBottom: 16 }}
         >
-          <CoreRings isEntered={isEntered} />
+          <CoreRings isEntered={isEntered} isMobile={isMobile} />
           <div style={{ marginTop: 6, fontFamily: FONT_DISPLAY, fontSize: 7, letterSpacing: '0.2em', color: '#00FF9C', fontWeight: 900, textShadow: '0 0 6px rgba(0,255,156,0.4)' }}>
             CYBERSAGE_CORE
           </div>

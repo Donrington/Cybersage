@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useEffect, useRef, useState } from 'react';
+import { useIsMobile } from '@/lib/useIsMobile';
 import { motion, AnimatePresence } from 'framer-motion';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
@@ -361,6 +362,7 @@ function TransmissionLog({ onComplete }: { onComplete: () => void }) {
 export function ContactFooter() {
   const sectionRef = useRef<HTMLElement>(null);
   const wrapRef    = useRef<HTMLDivElement>(null);
+  const isMobile   = useIsMobile();
 
   const [entered,   setEntered]   = useState(false);
   const [name,      setName]      = useState('');
@@ -404,24 +406,26 @@ export function ContactFooter() {
       ref={sectionRef}
       style={{ position: 'relative', width: '100%', background: '#060606', overflow: 'hidden' }}
     >
-      {/* ── Atmospheric gradient A ────────────────────────────────────────── */}
-      <motion.div
-        animate={{ opacity: [0.5, 1, 0.5] }}
-        transition={{ duration: 12, repeat: Infinity, ease: 'easeInOut' }}
-        style={{
-          position: 'absolute', inset: 0, pointerEvents: 'none', zIndex: 0,
-          background: 'radial-gradient(ellipse 75% 55% at 20% 60%, rgba(0,255,156,0.05) 0%, transparent 65%)',
-        }}
-      />
-      {/* ── Atmospheric gradient B ────────────────────────────────────────── */}
-      <motion.div
-        animate={{ opacity: [1, 0.4, 1] }}
-        transition={{ duration: 12, repeat: Infinity, ease: 'easeInOut' }}
-        style={{
-          position: 'absolute', inset: 0, pointerEvents: 'none', zIndex: 0,
-          background: 'radial-gradient(ellipse 75% 55% at 80% 40%, rgba(0,255,156,0.04) 0%, transparent 65%)',
-        }}
-      />
+      {/* ── Atmospheric gradients — static on mobile, animated on desktop ── */}
+      {isMobile ? (
+        <>
+          <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none', zIndex: 0, background: 'radial-gradient(ellipse 75% 55% at 20% 60%, rgba(0,255,156,0.05) 0%, transparent 65%)', opacity: 0.75 }} />
+          <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none', zIndex: 0, background: 'radial-gradient(ellipse 75% 55% at 80% 40%, rgba(0,255,156,0.04) 0%, transparent 65%)', opacity: 0.7 }} />
+        </>
+      ) : (
+        <>
+          <motion.div
+            animate={{ opacity: [0.5, 1, 0.5] }}
+            transition={{ duration: 12, repeat: Infinity, ease: 'easeInOut' }}
+            style={{ position: 'absolute', inset: 0, pointerEvents: 'none', zIndex: 0, background: 'radial-gradient(ellipse 75% 55% at 20% 60%, rgba(0,255,156,0.05) 0%, transparent 65%)' }}
+          />
+          <motion.div
+            animate={{ opacity: [1, 0.4, 1] }}
+            transition={{ duration: 12, repeat: Infinity, ease: 'easeInOut' }}
+            style={{ position: 'absolute', inset: 0, pointerEvents: 'none', zIndex: 0, background: 'radial-gradient(ellipse 75% 55% at 80% 40%, rgba(0,255,156,0.04) 0%, transparent 65%)' }}
+          />
+        </>
+      )}
 
       {/* ── CRT scanlines ─────────────────────────────────────────────────── */}
       <div style={{
