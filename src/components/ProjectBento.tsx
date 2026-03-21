@@ -688,6 +688,7 @@ function BentoCard({
         rotateX: sRotateX,
         rotateY: sRotateY,
         transformStyle: 'preserve-3d',
+        cursor: hasLink ? 'crosshair' : 'default',
       }}
       initial={{ opacity: 0, y: 28 }}
       animate={entered ? { opacity: 1, y: 0 } : {}}
@@ -696,7 +697,6 @@ function BentoCard({
       onMouseEnter={() => { setHovered(true); onMouseEnter(); }}
       onMouseLeave={handleLeave}
       onClick={handleCardClick}
-      style={{ cursor: hasLink ? 'crosshair' : 'default' }}
     >
       {/* ── Glass shell ────────────────────────────────────────────────────── */}
       <div
