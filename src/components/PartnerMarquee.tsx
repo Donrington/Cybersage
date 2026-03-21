@@ -29,7 +29,7 @@ const PARTNERS: Partner[] = [
   { name: 'TECH',             src: '/logo/techwhite.png',                      ref: '07' },
   { name: 'AXFLO OIL',               src: '/logo/AXFLOOILLOGOWHITE.png',        ref: '08' },
   { name: 'ANOC.NG',                 src: '/logo/anoc.svg',                     ref: '09' },
-  { name: 'TWERK QUEEN',             src: '/projects/twerkqueenlagos.jpg',      ref: '0A' },
+  { name: 'TWERK QUEEN',             src: '/logo/QL LOGO 2-01.png',             ref: '0A' },
   { name: 'CHRIS CONTRERAS',         src: '/logo/chris_con.png',                ref: '0B' },
   { name: 'AMANIGO',                                                             ref: '0C' },
 ];
@@ -284,30 +284,14 @@ export function PartnerMarquee({ partners = PARTNERS }: PartnerMarqueeProps) {
         </div>
       </div>
 
-      {/* ── Left portal blur mask — logos materialise out of blur ──────────── */}
-      <div style={{
-        position: 'absolute', left: 0, top: 0, bottom: 0, width: 110,
-        backdropFilter: 'blur(7px)',
-        WebkitBackdropFilter: 'blur(7px)',
-        maskImage: 'linear-gradient(to right, black 25%, transparent 100%)',
-        WebkitMaskImage: 'linear-gradient(to right, black 25%, transparent 100%)',
-        pointerEvents: 'none', zIndex: 5,
-      }} />
+      {/* ── Left fade mask ─────────────────────────────────────────────────── */}
       <div style={{
         position: 'absolute', left: 0, top: 0, bottom: 0, width: 110,
         background: 'linear-gradient(to right, #080808 20%, transparent 100%)',
         pointerEvents: 'none', zIndex: 6,
       }} />
 
-      {/* ── Right portal blur mask ─────────────────────────────────────────── */}
-      <div style={{
-        position: 'absolute', right: 0, top: 0, bottom: 0, width: 110,
-        backdropFilter: 'blur(7px)',
-        WebkitBackdropFilter: 'blur(7px)',
-        maskImage: 'linear-gradient(to left, black 25%, transparent 100%)',
-        WebkitMaskImage: 'linear-gradient(to left, black 25%, transparent 100%)',
-        pointerEvents: 'none', zIndex: 5,
-      }} />
+      {/* ── Right fade mask ────────────────────────────────────────────────── */}
       <div style={{
         position: 'absolute', right: 0, top: 0, bottom: 0, width: 110,
         background: 'linear-gradient(to left, #080808 20%, transparent 100%)',

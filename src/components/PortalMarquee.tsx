@@ -29,7 +29,7 @@ const PARTNERS: Partner[] = [
   { name: 'TECH',             src: '/logo/techwhite.png',                       ref: '07' },
   { name: 'AXFLO OIL',               src: '/logo/AXFLOOILLOGOWHITE.png',         ref: '08' },
   { name: 'ANOC.NG',                 src: '/logo/anoc.svg',                      ref: '09' },
-  { name: 'TWERK QUEEN',             src: '/projects/twerkqueenlagos.jpg',       ref: '0A' },
+  { name: 'TWERK QUEEN',             src: '/logo/QL LOGO 2-01.png',             ref: '0A' },
   { name: 'CHRIS CONTRERAS',         src: '/logo/chris_con.png',                 ref: '0B' },
   { name: 'AMANIGO',                                                              ref: '0C' },
 ];
