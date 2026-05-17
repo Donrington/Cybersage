@@ -315,7 +315,7 @@ export function Hero() {
                 transition: 'filter 0.1s',
               }}
             >
-              Full Stack Engineer&nbsp;// Digital Wisdom
+              Full Stack Engineer&nbsp;// Building from Lagos
             </motion.p>
 
             {/* Ghost CTA buttons with hex addresses */}
