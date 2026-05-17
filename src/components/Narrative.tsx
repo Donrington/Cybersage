@@ -79,11 +79,10 @@ const PANELS: PanelData[] = [
     scanColor: '#00FF9C',
     body: (
       <>
-        5+ years of engineering mastery. From{' '}
-        <span style={{ color: '#AE0C00' }}>Lagos</span> to the global stage,
-        designing{' '}
-        <span style={{ color: '#AE0C00' }}>scalable systems</span>{' '}
-        that transcend boundaries.
+        5+ years building real systems for real clients.{' '}
+        <span style={{ color: '#AE0C00' }}>Lagos</span>-based,{' '}
+        deployed{' '}
+        <span style={{ color: '#AE0C00' }}>worldwide</span>.
       </>
     ),
   },
@@ -93,10 +92,8 @@ const PANELS: PanelData[] = [
     scanColor: '#FF5A1F',
     body: (
       <>
-        Expertise:{' '}
-        <span style={{ color: '#AE0C00' }}>Next.js, Django, Go</span>, and{' '}
-        <span style={{ color: '#AE0C00' }}>PostgreSQL</span>.{' '}
-        Specializing in Microservices and High-Performance API architecture.
+        <span style={{ color: '#AE0C00' }}>Next.js, Django, Go, PostgreSQL</span>.{' '}
+        I design APIs that hold up under load and microservices that don&apos;t become a liability.
       </>
     ),
   },
@@ -106,12 +103,11 @@ const PANELS: PanelData[] = [
     scanColor: '#00FF9C',
     body: (
       <>
-        Leading high-impact builds:{' '}
+        Current work:{' '}
         <span style={{ color: '#AE0C00' }}>Autoboy</span>{' '}
-        (B2B/B2C Marketplace),{' '}
-        <span style={{ color: '#AE0C00' }}>NextGen Robotics</span>, and{' '}
-        <span style={{ color: '#AE0C00' }}>Axflo Oil &amp; Gas</span>{' '}
-        (Enterprise CMS).
+        marketplace,{' '}
+        <span style={{ color: '#AE0C00' }}>NextGen Robotics</span>,{' '}
+        <span style={{ color: '#AE0C00' }}>Axflo Oil &amp; Gas</span>.
       </>
     ),
   },
@@ -481,7 +477,7 @@ export function Narrative() {
               letterSpacing: '-0.04em',
             }}
           >
-            <span data-kw>5+ YEARS</span>{' '}OF FULL STACK MASTERY
+            <span data-kw>5+ YEARS</span>{' '}// FULL STACK
           </span>
         </div>
 
@@ -500,7 +496,7 @@ export function Narrative() {
               letterSpacing: '-0.04em',
             }}
           >
-            <span data-kw>OPTIMIZING SYSTEM PERFORMANCE</span>{' '}// LEADING HIGH-IMPACT PROJECTS
+            <span data-kw>PERFORMANCE-FIRST</span>{' '}// PRESSURE-TESTED
           </span>
         </div>
       </div>
