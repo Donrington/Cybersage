@@ -2,6 +2,7 @@
 
 import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import Image from 'next/image';
 import gsap from 'gsap';
 import { useIsMobile } from '@/lib/useIsMobile';
 
@@ -30,14 +31,16 @@ function lerpColor(a: string, b: string, t: number): string {
   return `rgb(${r},${g},${bl})`;
 }
 
-// ─── Boot log lines ───────────────────────────────────────────────────────────
+// ─── Boot log lines — expanded, more dramatic ─────────────────────────────────
 const BOOT_LOGS = [
-  'LOADING_KERNEL_MODULES...',
-  'NEURAL_INTERFACE: OK',
-  'ENCRYPTING_SIGNAL_LAYER...',
-  'THREAT_MODEL: ACTIVE',
-  'PORTFOLIO_MATRIX: INITIALIZED',
-  'CYBERSAGE_CORE: ONLINE',
+  { text: 'BIOS_CHECK: PASSED // SYSTEM_INTEGRITY: 100%',  type: 'ok'   },
+  { text: 'LOADING_KERNEL_MODULES...',                      type: 'info' },
+  { text: 'NEURAL_INTERFACE: HANDSHAKE_COMPLETE',           type: 'ok'   },
+  { text: 'ENCRYPTING_SIGNAL_LAYER... AES-256 ACTIVE',      type: 'info' },
+  { text: 'THREAT_MODEL: INITIALIZED // RISK_SCORE: 0.00',  type: 'ok'   },
+  { text: 'PORTFOLIO_MATRIX: LOADING_DATA_PACKETS...',      type: 'info' },
+  { text: 'MOUNTING_EXPERIENCE_VOLUME: /audit/v2',          type: 'info' },
+  { text: 'CYBERSAGE_CORE: ONLINE // ALL_SYSTEMS_NOMINAL',  type: 'ok'   },
 ];
 
 // ─── Glitch scramble ──────────────────────────────────────────────────────────
@@ -77,9 +80,9 @@ function useGlitchText(target: string, active: boolean): string {
 
 // ─── SVG Rings ────────────────────────────────────────────────────────────────
 const RING_TEXT = 'CYBERSAGE · SECURITY_AUDIT · NEURAL_INTERFACE · PORTFOLIO_MATRIX · ';
-const RING_R1 = 110;  // textPath ring radius
-const RING_R2 = 126;  // dashed pulse
-const RING_R3 = 142;  // particle orbitals
+const RING_R1 = 110;
+const RING_R2 = 126;
+const RING_R3 = 142;
 const CX = 250, CY = 250;
 
 function Rings({ isMobile }: { isMobile: boolean }) {
@@ -89,7 +92,6 @@ function Rings({ isMobile }: { isMobile: boolean }) {
   const NUM_PARTICLES = isMobile ? 5 : 8;
 
   useEffect(() => {
-    // Ring 1 — continuous rotation
     const r1 = ring1Ref.current;
     if (r1) {
       gsap.to(r1, {
@@ -101,9 +103,6 @@ function Rings({ isMobile }: { isMobile: boolean }) {
       });
     }
 
-    // Ring 2 — dashed dash-offset pulse (handled via Framer Motion on the element)
-
-    // Ring 3 — particle orbitals
     const particles = particleRefs.current;
     particles.forEach((el, i) => {
       if (!el) return;
@@ -129,7 +128,6 @@ function Rings({ isMobile }: { isMobile: boolean }) {
     };
   }, [NUM_PARTICLES]);
 
-  // Circumference of ring2
   const c2 = 2 * Math.PI * RING_R2;
 
   return (
@@ -140,7 +138,6 @@ function Rings({ isMobile }: { isMobile: boolean }) {
       style={{ overflow: 'visible', position: 'absolute', inset: 0 }}
     >
       <defs>
-        {/* Goo filter for plasma */}
         <filter id="sl-plasma" x="-40%" y="-40%" width="180%" height="180%" colorInterpolationFilters="sRGB">
           <feGaussianBlur in="SourceGraphic" stdDeviation="10" result="blur" />
           <feColorMatrix
@@ -150,7 +147,6 @@ function Rings({ isMobile }: { isMobile: boolean }) {
             result="goo"
           />
         </filter>
-        {/* Particle glow */}
         <filter id="sl-bloom" x="-100%" y="-100%" width="300%" height="300%">
           <feGaussianBlur in="SourceGraphic" stdDeviation="3" result="blur" />
           <feMerge>
@@ -158,14 +154,12 @@ function Rings({ isMobile }: { isMobile: boolean }) {
             <feMergeNode in="SourceGraphic" />
           </feMerge>
         </filter>
-        {/* TextPath circle */}
         <path
           id="sl-ring1-path"
           d={`M ${CX - RING_R1},${CY} A ${RING_R1},${RING_R1} 0 1 1 ${CX - RING_R1 - 0.001},${CY}`}
         />
       </defs>
 
-      {/* ── Ring 1 — rotating text ────────────────────────────────────────── */}
       <g ref={ring1Ref}>
         <text
           style={{
@@ -182,7 +176,6 @@ function Rings({ isMobile }: { isMobile: boolean }) {
         </text>
       </g>
 
-      {/* ── Ring 1 thin circle ────────────────────────────────────────────── */}
       <circle
         cx={CX} cy={CY} r={RING_R1}
         fill="none"
@@ -190,7 +183,6 @@ function Rings({ isMobile }: { isMobile: boolean }) {
         strokeWidth={0.5}
       />
 
-      {/* ── Ring 2 — dashed pulse ─────────────────────────────────────────── */}
       <motion.circle
         ref={ring2Ref}
         cx={CX} cy={CY} r={RING_R2}
@@ -203,7 +195,6 @@ function Rings({ isMobile }: { isMobile: boolean }) {
         style={{ opacity: 0.3 }}
       />
 
-      {/* ── Ring 3 — particle orbitals ────────────────────────────────────── */}
       <circle cx={CX} cy={CY} r={RING_R3} fill="none" stroke="rgba(0,255,156,0.05)" strokeWidth={0.5} />
       <g filter="url(#sl-bloom)">
         {Array.from({ length: NUM_PARTICLES }).map((_, i) => (
@@ -224,7 +215,7 @@ function Rings({ isMobile }: { isMobile: boolean }) {
 
 // ─── Plasma Core ──────────────────────────────────────────────────────────────
 interface PlasmaProps {
-  progress: number;  // 0–100
+  progress: number;
   isMobile: boolean;
 }
 
@@ -236,7 +227,6 @@ function PlasmaCore({ progress, isMobile }: PlasmaProps) {
   const coreColor = lerpColor(FLAME, EMERALD, progress / 100);
   const coreSize = isMobile ? 60 : 90;
 
-  // Spawn/absorb bubbles
   const spawnBubble = useCallback((el: SVGCircleElement | null, i: number) => {
     if (!el) return;
     const angle = (i / NUM_BUBBLES) * Math.PI * 2;
@@ -297,18 +287,13 @@ function PlasmaCore({ progress, isMobile }: PlasmaProps) {
         </filter>
       </defs>
 
-      {/* Ambient glow behind core */}
       <circle cx={0} cy={0} r={coreSize * 1.5}
         fill={coreColor} opacity={0.04 + (progress / 100) * 0.08} />
       <circle cx={0} cy={0} r={coreSize * 1.1}
         fill={coreColor} opacity={0.06 + (progress / 100) * 0.06} />
 
-      {/* Goo cluster (core + bubbles together) */}
       <g filter="url(#sl-goo)">
-        {/* Main core sphere */}
         <circle cx={0} cy={0} r={coreSize} fill="url(#sl-core-grad)" filter="url(#sl-core-glow)" />
-
-        {/* Absorbing bubbles */}
         {Array.from({ length: NUM_BUBBLES }).map((_, i) => (
           <circle
             key={i}
@@ -320,6 +305,48 @@ function PlasmaCore({ progress, isMobile }: PlasmaProps) {
         ))}
       </g>
     </svg>
+  );
+}
+
+// ─── Scan line overlay ────────────────────────────────────────────────────────
+function ScanLineOverlay({ isMobile }: { isMobile: boolean }) {
+  const ref = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (isMobile || !ref.current) return;
+    const tween = gsap.fromTo(
+      ref.current,
+      { top: '-4px', opacity: 0 },
+      {
+        top: '100%',
+        opacity: 1,
+        duration: 2.4,
+        ease: 'none',
+        repeat: -1,
+        repeatDelay: 0.3,
+        onRepeat: () => {
+          if (ref.current) gsap.set(ref.current, { top: '-4px', opacity: 0 });
+        },
+      }
+    );
+    return () => { tween.kill(); };
+  }, [isMobile]);
+
+  if (isMobile) return null;
+
+  return (
+    <div
+      ref={ref}
+      style={{
+        position: 'absolute',
+        left: 0,
+        right: 0,
+        height: 3,
+        background: `linear-gradient(to right, transparent, ${EMERALD}18, ${EMERALD}40, ${EMERALD}18, transparent)`,
+        zIndex: 12,
+        pointerEvents: 'none',
+        boxShadow: `0 0 12px ${EMERALD}20`,
+      }}
+    />
   );
 }
 
@@ -335,25 +362,30 @@ export function SystemLoader({ onComplete }: SystemLoaderProps) {
   const [visibleLogs, setVisibleLogs]   = useState<number[]>([]);
   const [blasting, setBlasting]         = useState(false);
   const [done, setDone]                 = useState(false);
-  const scanRef   = useRef<HTMLDivElement>(null);
+  const [systemStatus, setSystemStatus] = useState<'INITIALIZING' | 'LOADING' | 'READY'>('INITIALIZING');
+  const [chromaShift, setChromaShift]   = useState(false);
   const coreRef   = useRef<HTMLDivElement>(null);
   const pctRef    = useRef<HTMLDivElement>(null);
   const gsapCtx   = useRef<gsap.Context | null>(null);
+  const wipeRef   = useRef<HTMLDivElement>(null);
 
-  const titleText = useGlitchText('INITIALIZING_CYBERSAGE_CORE...', glitchActive);
+  const titleTarget = systemStatus === 'READY'
+    ? 'SYSTEM: READY // CYBERSAGE_ONLINE'
+    : systemStatus === 'LOADING'
+    ? 'SYSTEM: LOADING // PORTFOLIO_MATRIX'
+    : 'SYSTEM: INITIALIZING_CYBERSAGE_CORE...';
 
-  // Animate CRT scanline (desktop only)
+  const titleText = useGlitchText(titleTarget, glitchActive);
+
+  // Random chroma pulse while loading
   useEffect(() => {
-    if (isMobile) return;
-    const el = scanRef.current;
-    if (!el) return;
-    const tween = gsap.fromTo(
-      el,
-      { top: '-2px' },
-      { top: '100%', duration: 2.4, ease: 'none', repeat: -1, repeatDelay: 0.3 }
-    );
-    return () => { tween.kill(); };
-  }, [isMobile]);
+    if (done) return;
+    const id = setInterval(() => {
+      setChromaShift(true);
+      setTimeout(() => setChromaShift(false), 120);
+    }, 2200 + Math.random() * 1000);
+    return () => clearInterval(id);
+  }, [done]);
 
   // Main progress timeline
   useEffect(() => {
@@ -365,7 +397,10 @@ export function SystemLoader({ onComplete }: SystemLoaderProps) {
       logTimers.push(
         setTimeout(() => {
           setVisibleLogs(prev => [...prev, i]);
-        }, 400 + i * 480)
+          // Update status at milestones
+          if (i === 2) setSystemStatus('LOADING');
+          if (i === BOOT_LOGS.length - 1) setSystemStatus('READY');
+        }, 350 + i * 420)
       );
     });
 
@@ -376,7 +411,6 @@ export function SystemLoader({ onComplete }: SystemLoaderProps) {
 
     const tick = (now: number) => {
       const t = Math.min((now - start) / DURATION, 1);
-      // Ease: cubic out
       const eased = 1 - Math.pow(1 - t, 3);
       const pct = Math.round(eased * 100);
       setProgress(pct);
@@ -384,14 +418,32 @@ export function SystemLoader({ onComplete }: SystemLoaderProps) {
       if (pct < 100) {
         raf = requestAnimationFrame(tick);
       } else {
-        // Blast handoff
+        // Dramatic exit: glitch flash then full-screen wipe
         setTimeout(() => {
+          setChromaShift(true);
           setBlasting(true);
-          setTimeout(() => {
-            setDone(true);
-            onComplete();
-          }, 900);
-        }, 200);
+          // Animate wipe panel
+          if (wipeRef.current) {
+            gsap.fromTo(
+              wipeRef.current,
+              { scaleX: 0, transformOrigin: 'left center' },
+              {
+                scaleX: 1,
+                duration: 0.55,
+                ease: 'power4.in',
+                onComplete: () => {
+                  setDone(true);
+                  onComplete();
+                },
+              }
+            );
+          } else {
+            setTimeout(() => {
+              setDone(true);
+              onComplete();
+            }, 900);
+          }
+        }, 180);
       }
     };
     raf = requestAnimationFrame(tick);
@@ -413,9 +465,9 @@ export function SystemLoader({ onComplete }: SystemLoaderProps) {
         <motion.div
           key="system-loader"
           initial={{ opacity: 1 }}
-          animate={blasting ? { opacity: 0 } : { opacity: 1 }}
+          animate={blasting ? { opacity: 1 } : { opacity: 1 }}
           exit={{ opacity: 0 }}
-          transition={blasting ? { duration: 0.85, ease: EASE } : { duration: 0 }}
+          transition={{ duration: 0.15 }}
           style={{
             position: 'fixed',
             inset: 0,
@@ -428,30 +480,29 @@ export function SystemLoader({ onComplete }: SystemLoaderProps) {
             overflow: 'hidden',
           }}
         >
-          {/* ── CRT Scanline (desktop) ───────────────────────────────────── */}
-          {!isMobile && (
-            <div
-              ref={scanRef}
-              style={{
-                position: 'absolute',
-                left: 0,
-                right: 0,
-                height: 2,
-                background: `linear-gradient(to right, transparent, ${EMERALD}22, ${EMERALD}44, ${EMERALD}22, transparent)`,
-                zIndex: 12,
-                pointerEvents: 'none',
-              }}
-            />
-          )}
+          {/* ── Full-screen wipe panel (exit) ────────────────────────────── */}
+          <div
+            ref={wipeRef}
+            style={{
+              position: 'absolute', inset: 0, zIndex: 30,
+              background: `linear-gradient(135deg, #060606 0%, ${EMERALD}08 50%, #060606 100%)`,
+              transform: 'scaleX(0)',
+              transformOrigin: 'left center',
+              pointerEvents: 'none',
+            }}
+          />
+
+          {/* ── Moving CRT scan line ─────────────────────────────────────── */}
+          <ScanLineOverlay isMobile={isMobile} />
 
           {/* ── Grain overlay ────────────────────────────────────────────── */}
           <div style={{
             position: 'absolute', inset: 0, pointerEvents: 'none', zIndex: 1,
             backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.72' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)' opacity='1'/%3E%3C/svg%3E")`,
-            opacity: 0.035,
+            opacity: 0.038,
           }} />
 
-          {/* ── CRT scanlines (horizontal) ───────────────────────────────── */}
+          {/* ── CRT horizontal scanlines ─────────────────────────────────── */}
           <div style={{
             position: 'absolute', inset: 0, pointerEvents: 'none', zIndex: 1,
             backgroundImage: 'repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(0,0,0,0.018) 3px,rgba(0,0,0,0.018) 4px)',
@@ -464,7 +515,7 @@ export function SystemLoader({ onComplete }: SystemLoaderProps) {
             transition: 'background 0.4s ease',
           }} />
 
-          {/* ── Big glitch percentage — background ───────────────────────── */}
+          {/* ── Big ghost percentage — background watermark ───────────────── */}
           <div
             ref={pctRef}
             style={{
@@ -482,7 +533,6 @@ export function SystemLoader({ onComplete }: SystemLoaderProps) {
               pointerEvents: 'none',
               zIndex: 0,
               userSelect: 'none',
-              transition: 'WebkitTextStroke 0.3s ease',
               whiteSpace: 'nowrap',
             }}
           >
@@ -500,9 +550,16 @@ export function SystemLoader({ onComplete }: SystemLoaderProps) {
               ],
             } : {
               scale: 1,
-              filter: 'none',
+              filter: chromaShift
+                ? `drop-shadow(2px 0 0 ${FLAME}88) drop-shadow(-2px 0 0 ${EMERALD}88)`
+                : 'none',
             }}
-            transition={blasting ? { duration: 0.7, ease: [0.4, 0, 0.2, 1] } : { duration: 0 }}
+            transition={blasting
+              ? { duration: 0.7, ease: [0.4, 0, 0.2, 1] }
+              : chromaShift
+              ? { duration: 0.1 }
+              : { duration: 0.25 }
+            }
             style={{
               position: 'relative',
               width: isMobile ? 260 : 380,
@@ -510,12 +567,9 @@ export function SystemLoader({ onComplete }: SystemLoaderProps) {
               zIndex: 10,
             }}
           >
-            {/* Rings (behind core visually) */}
             <div style={{ position: 'absolute', inset: 0 }}>
               <Rings isMobile={isMobile} />
             </div>
-
-            {/* Core — centered */}
             <div style={{
               position: 'absolute', inset: 0,
               display: 'flex', alignItems: 'center', justifyContent: 'center',
@@ -529,7 +583,7 @@ export function SystemLoader({ onComplete }: SystemLoaderProps) {
             </div>
           </motion.div>
 
-          {/* ── Boot title ───────────────────────────────────────────────── */}
+          {/* ── Boot title with chromatic aberration ─────────────────────── */}
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
@@ -538,55 +592,105 @@ export function SystemLoader({ onComplete }: SystemLoaderProps) {
               fontFamily: FONT_MONO,
               fontSize: isMobile ? 8 : 10,
               letterSpacing: '0.24em',
-              color: `${EMERALD}CC`,
+              color: systemStatus === 'READY' ? EMERALD : `${EMERALD}CC`,
               fontWeight: 700,
               marginTop: isMobile ? 16 : 24,
               textAlign: 'center',
               zIndex: 10,
               userSelect: 'none',
+              filter: chromaShift
+                ? `drop-shadow(2px 0 0 ${FLAME}99) drop-shadow(-2px 0 0 ${EMERALD}99)`
+                : systemStatus === 'READY'
+                ? `drop-shadow(0 0 12px ${EMERALD}66)`
+                : 'none',
+              transition: 'color 0.3s ease',
             }}
           >
-            {titleText || 'INITIALIZING_CYBERSAGE_CORE...'}
+            {titleText || titleTarget}
           </motion.div>
 
-          {/* ── Progress bar ─────────────────────────────────────────────── */}
+          {/* ── Progress bar — thicker with glow trail ───────────────────── */}
           <motion.div
             initial={{ opacity: 0, scaleX: 0 }}
             animate={{ opacity: 1, scaleX: 1 }}
             transition={{ duration: 0.4, delay: 0.35, ease: EASE }}
             style={{
               width: isMobile ? '72vw' : 340,
-              height: 1,
+              height: 3,
               background: 'rgba(249,255,246,0.06)',
-              marginTop: 14,
+              marginTop: 16,
               position: 'relative',
               zIndex: 10,
-              borderRadius: 1,
+              borderRadius: 2,
               overflow: 'visible',
             }}
           >
+            {/* Track border glow */}
+            <div style={{
+              position: 'absolute', inset: -1,
+              borderRadius: 3,
+              border: `0.5px solid rgba(0,255,156,0.12)`,
+              pointerEvents: 'none',
+            }} />
+            {/* Fill */}
             <div style={{
               position: 'absolute',
               left: 0, top: 0, bottom: 0,
               width: `${progress}%`,
               background: `linear-gradient(to right, ${FLAME}, ${coreColor})`,
               transition: 'width 0.06s linear',
-              borderRadius: 1,
+              borderRadius: 2,
+              boxShadow: progress > 5
+                ? `0 0 8px ${coreColor}88, 0 0 20px ${coreColor}44`
+                : 'none',
             }} />
+            {/* Scan pulse on bar */}
+            {progress > 5 && progress < 98 && (
+              <motion.div
+                animate={{ left: [`${Math.max(0, progress - 15)}%`, `${progress}%`] }}
+                transition={{ duration: 0.8, ease: 'linear', repeat: Infinity }}
+                style={{
+                  position: 'absolute',
+                  top: 0, bottom: 0,
+                  width: '15%',
+                  background: `linear-gradient(to right, transparent, ${EMERALD}66, transparent)`,
+                  borderRadius: 2,
+                  pointerEvents: 'none',
+                }}
+              />
+            )}
             {/* Leading dot */}
             <div style={{
               position: 'absolute',
               top: '50%',
               left: `${progress}%`,
               transform: 'translate(-50%, -50%)',
-              width: 5, height: 5, borderRadius: '50%',
+              width: 7, height: 7, borderRadius: '50%',
               background: coreColor,
-              boxShadow: `0 0 8px ${coreColor}, 0 0 16px ${coreColor}88`,
-              transition: 'left 0.06s linear, background 0.3s ease, box-shadow 0.3s ease',
+              boxShadow: `0 0 10px ${coreColor}, 0 0 22px ${coreColor}88`,
+              transition: 'left 0.06s linear, background 0.3s ease',
             }} />
+            {/* Percentage on bar */}
+            <div style={{
+              position: 'absolute',
+              top: -18,
+              left: `${Math.min(progress, 92)}%`,
+              transform: 'translateX(-50%)',
+              fontFamily: FONT_MONO,
+              fontSize: 6,
+              letterSpacing: '0.2em',
+              color: coreColor,
+              fontWeight: 700,
+              whiteSpace: 'nowrap',
+              transition: 'left 0.06s linear',
+              textShadow: `0 0 8px ${coreColor}88`,
+              pointerEvents: 'none',
+            }}>
+              {String(progress).padStart(3, '0')}%
+            </div>
           </motion.div>
 
-          {/* ── Percentage readout ───────────────────────────────────────── */}
+          {/* ── System status readout ────────────────────────────────────── */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -595,13 +699,16 @@ export function SystemLoader({ onComplete }: SystemLoaderProps) {
               fontFamily: FONT_MONO,
               fontSize: 7,
               letterSpacing: '0.28em',
-              color: 'rgba(249,255,246,0.3)',
-              marginTop: 8,
+              color: systemStatus === 'READY'
+                ? `${EMERALD}EE`
+                : 'rgba(249,255,246,0.3)',
+              marginTop: 12,
               zIndex: 10,
               userSelect: 'none',
+              transition: 'color 0.4s ease',
             }}
           >
-            {String(progress).padStart(3, '0')}% · PORTFOLIO_AUDIT
+            {String(progress).padStart(3, '0')}% · PORTFOLIO_AUDIT · {systemStatus}
           </motion.div>
 
           {/* ── Boot log stream — bottom-left ────────────────────────────── */}
@@ -615,11 +722,11 @@ export function SystemLoader({ onComplete }: SystemLoaderProps) {
             zIndex: 10,
             pointerEvents: 'none',
           }}>
-            {BOOT_LOGS.map((line, i) => (
+            {BOOT_LOGS.map((entry, i) => (
               <AnimatePresence key={i}>
                 {visibleLogs.includes(i) && (
                   <motion.div
-                    initial={{ opacity: 0, x: -10 }}
+                    initial={{ opacity: 0, x: -14 }}
                     animate={{ opacity: 1, x: 0 }}
                     exit={{ opacity: 0 }}
                     transition={{ duration: 0.32, ease: EASE }}
@@ -627,13 +734,18 @@ export function SystemLoader({ onComplete }: SystemLoaderProps) {
                       fontFamily: FONT_MONO,
                       fontSize: isMobile ? 5.5 : 6.5,
                       letterSpacing: '0.18em',
-                      color: i === BOOT_LOGS.length - 1
-                        ? `${EMERALD}CC`
+                      color: entry.type === 'ok'
+                        ? i === BOOT_LOGS.length - 1
+                          ? `${EMERALD}EE`
+                          : `${EMERALD}88`
                         : 'rgba(249,255,246,0.28)',
                       fontWeight: 700,
                     }}
                   >
-                    {'> '}{line}
+                    <span style={{ color: entry.type === 'ok' ? `${EMERALD}66` : `${FLAME}44`, marginRight: 4 }}>
+                      {entry.type === 'ok' ? '✓' : '>'}
+                    </span>
+                    {entry.text}
                   </motion.div>
                 )}
               </AnimatePresence>
@@ -659,8 +771,8 @@ export function SystemLoader({ onComplete }: SystemLoaderProps) {
               color: 'rgba(249,255,246,0.18)', fontWeight: 700, lineHeight: 2,
             }}>
               <div>SYS_OPERATOR: ABAKWE.CARRINGTON</div>
-              <div style={{ color: `${FLAME}44` }}>LOCATION: LAGOS_TERMINAL_NG</div>
-              <div style={{ color: `${EMERALD}44` }}>NODE_STATUS: ACTIVE</div>
+              <div style={{ color: `${FLAME}44` }}>LOCATION: REMOTE // AVAILABLE</div>
+              <div style={{ color: `${EMERALD}44` }}>NODE_STATUS: {systemStatus}</div>
             </div>
           </motion.div>
 
@@ -677,13 +789,19 @@ export function SystemLoader({ onComplete }: SystemLoaderProps) {
               pointerEvents: 'none',
             }}
           >
-            <span style={{
-              fontFamily: FONT_DISPLAY, fontSize: isMobile ? 7 : 8,
-              letterSpacing: '0.26em', fontWeight: 900,
-              color: 'rgba(249,255,246,0.35)',
-            }}>
-              CYBERSAGE
-            </span>
+            <Image
+              src="/logo/cybersage_horizontal.png"
+              alt="Cybersage"
+              width={140}
+              height={28}
+              style={{
+                height: isMobile ? 24 : 32,
+                width: 'auto',
+                objectFit: 'contain',
+                opacity: 0.75,
+              }}
+              priority
+            />
           </motion.div>
         </motion.div>
       )}

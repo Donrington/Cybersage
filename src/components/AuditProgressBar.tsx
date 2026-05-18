@@ -17,6 +17,10 @@ import { useIsMobile } from '@/lib/useIsMobile';
 gsap.registerPlugin(ScrollTrigger);
 
 const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];
+const EMERALD = '#00FF9C';
+const FLAME   = '#FF5A1F';
+const RED     = '#AE0C00';
+const FONT_MONO = '"JetBrains Mono","IBM Plex Mono",monospace';
 
 interface AuditProgressBarProps {
   sectionRef:    React.RefObject<HTMLElement | null>;
@@ -30,7 +34,6 @@ function BlinkingStatus({ complete, isFault }: { complete: boolean; isFault: boo
 
   useEffect(() => {
     if (!complete && !isFault) { setShow(true); return; }
-    // Fault blinks faster (200ms) for urgency; completion blinks slower (560ms)
     const speed = isFault ? 200 : 560;
     const id = setInterval(() => setShow(s => !s), speed);
     return () => clearInterval(id);
@@ -43,9 +46,9 @@ function BlinkingStatus({ complete, isFault }: { complete: boolean; isFault: boo
     : 'PORTFOLIO_AUDIT_IN_PROGRESS...';
 
   const color = isFault
-    ? show ? '#AE0C00' : 'rgba(174,12,0,0.25)'
+    ? show ? RED : 'rgba(174,12,0,0.25)'
     : complete
-    ? show ? '#00FF9C' : 'rgba(0,255,156,0.28)'
+    ? show ? EMERALD : 'rgba(0,255,156,0.28)'
     : 'rgba(249,255,246,0.45)';
 
   return (
@@ -66,9 +69,29 @@ function BlinkingStatus({ complete, isFault }: { complete: boolean; isFault: boo
   );
 }
 
+// ─── Scan pulse on bar ────────────────────────────────────────────────────────
+function ScanPulse({ width, color }: { width: string; color: string }) {
+  return (
+    <motion.div
+      animate={{ x: ['-100%', '200%'] }}
+      transition={{ duration: 1.6, ease: 'linear', repeat: Infinity, repeatDelay: 0.5 }}
+      style={{
+        position: 'absolute',
+        top: 0, bottom: 0,
+        left: 0,
+        width: '30%',
+        background: `linear-gradient(to right, transparent, ${color}55, transparent)`,
+        pointerEvents: 'none',
+        clipPath: `inset(0 0 0 0)`,
+      }}
+    />
+  );
+}
+
 // ─── AuditProgressBar ─────────────────────────────────────────────────────────
 export function AuditProgressBar({ sectionRef, isSystemFault = false, totalCards = 12 }: AuditProgressBarProps) {
   const fillRef    = useRef<HTMLDivElement>(null);
+  const trailRef   = useRef<HTMLDivElement>(null);
   const isFaultRef = useRef(false);
   isFaultRef.current = isSystemFault;
   const isMobile   = useIsMobile();
@@ -81,7 +104,6 @@ export function AuditProgressBar({ sectionRef, isSystemFault = false, totalCards
   const [displayPct,   setDisplayPct]   = useState(0);
   const [displayCards, setDisplayCards] = useState(0);
 
-  // Portal requires document.body — only available after mount
   useEffect(() => setMounted(true), []);
 
   const rawPct   = useMotionValue(0);
@@ -109,12 +131,12 @@ export function AuditProgressBar({ sectionRef, isSystemFault = false, totalCards
     setDisplayCards(Math.min(Math.round(v), totalCards));
   });
 
-  // Override fill glow to red pulse when faulted; clear on recovery
+  // Override fill glow on fault
   useEffect(() => {
     if (!fillRef.current) return;
     if (isSystemFault) {
       fillRef.current.style.boxShadow =
-        '0 0 20px rgba(174,12,0,0.9), 0 0 40px rgba(255,90,31,0.45)';
+        `0 0 20px rgba(174,12,0,0.9), 0 0 40px rgba(255,90,31,0.45)`;
     } else {
       fillRef.current.style.boxShadow = 'none';
     }
@@ -124,7 +146,6 @@ export function AuditProgressBar({ sectionRef, isSystemFault = false, totalCards
     const section = sectionRef.current;
     if (!section) return;
 
-    // ── Visibility trigger ─────────────────────────────────────────────────
     const visTrigger = ScrollTrigger.create({
       trigger: section,
       start: 'top 65%',
@@ -137,7 +158,6 @@ export function AuditProgressBar({ sectionRef, isSystemFault = false, totalCards
       },
     });
 
-    // ── Progress + velocity glow ───────────────────────────────────────────
     const progTrigger = ScrollTrigger.create({
       trigger: section,
       start: 'top top',
@@ -146,7 +166,6 @@ export function AuditProgressBar({ sectionRef, isSystemFault = false, totalCards
       onUpdate: (self) => {
         rawPct.set(self.progress * 100);
 
-        // Direct DOM glow — zero re-renders; disabled on mobile, throttled via rAF on desktop
         if (!isMobile && fillRef.current && !isFaultRef.current && !rafPending.current) {
           rafPending.current = true;
           requestAnimationFrame(() => {
@@ -163,7 +182,6 @@ export function AuditProgressBar({ sectionRef, isSystemFault = false, totalCards
       },
     });
 
-    // ── Card intersection observer ─────────────────────────────────────────
     const cards = section.querySelectorAll('[data-bento-card]');
     let seenCount = 0;
 
@@ -189,6 +207,14 @@ export function AuditProgressBar({ sectionRef, isSystemFault = false, totalCards
   }, [sectionRef]);
 
   if (!mounted) return null;
+
+  const fillColor = isSystemFault
+    ? `linear-gradient(to right, ${RED} 0%, ${FLAME} 100%)`
+    : complete
+    ? `linear-gradient(to right, ${EMERALD}, ${RED}, ${EMERALD})`
+    : `linear-gradient(to right, ${EMERALD} 0%, ${RED} 100%)`;
+
+  const dotColor = isSystemFault ? FLAME : complete ? EMERALD : RED;
 
   return createPortal(
     (<>
@@ -224,26 +250,50 @@ export function AuditProgressBar({ sectionRef, isSystemFault = false, totalCards
             className="fixed top-0 left-0 right-0 pointer-events-none"
             style={{ zIndex: 9999 }}
           >
-            {/* ── 2px track ─────────────────────────────────────────────────── */}
+            {/* ── Track — thicker, 4px ─────────────────────────────────────── */}
             <div
               className="relative w-full"
-              style={{ height: 2, background: 'rgba(249,255,246,0.06)' }}
+              style={{
+                height: 4,
+                background: 'rgba(249,255,246,0.05)',
+                overflow: 'visible',
+              }}
             >
+              {/* Glow trail behind fill */}
+              <motion.div
+                ref={trailRef}
+                className="absolute top-0 left-0 h-full pointer-events-none"
+                style={{
+                  width: barWidth,
+                  background: isSystemFault
+                    ? `linear-gradient(to right, transparent, ${FLAME}22, ${FLAME}44)`
+                    : `linear-gradient(to right, transparent, ${EMERALD}22, ${EMERALD}44)`,
+                  filter: 'blur(4px)',
+                  transform: 'scaleY(3)',
+                  transformOrigin: 'top',
+                }}
+              />
+
               {/* Filled portion */}
               <motion.div
                 ref={fillRef}
                 className="absolute top-0 left-0 h-full"
                 style={{
                   width: barWidth,
-                  background: isSystemFault
-                    ? 'linear-gradient(to right, #AE0C00 0%, #FF5A1F 100%)'
-                    : complete
-                    ? 'linear-gradient(to right, #00FF9C, #AE0C00, #00FF9C)'
-                    : 'linear-gradient(to right, #00FF9C 0%, #AE0C00 100%)',
+                  background: fillColor,
                   transition: 'background 0.2s ease',
                   willChange: 'width, box-shadow',
+                  overflow: 'hidden',
                 }}
-              />
+              >
+                {/* Scan pulse on bar (desktop only) */}
+                {!isMobile && (
+                  <ScanPulse
+                    width={`${displayPct}%`}
+                    color={isSystemFault ? FLAME : EMERALD}
+                  />
+                )}
+              </motion.div>
 
               {/* Leading-edge glow dot */}
               <motion.div
@@ -251,20 +301,43 @@ export function AuditProgressBar({ sectionRef, isSystemFault = false, totalCards
                   position: 'absolute',
                   top: '50%',
                   left: barWidth,
-                  width: 6,
-                  height: 6,
+                  width: 8,
+                  height: 8,
                   borderRadius: '50%',
-                  background: isSystemFault ? '#FF5A1F' : complete ? '#00FF9C' : '#AE0C00',
+                  background: dotColor,
                   boxShadow: isSystemFault
-                    ? '0 0 8px #FF5A1F, 0 0 18px rgba(174,12,0,0.8)'
+                    ? `0 0 10px ${FLAME}, 0 0 24px rgba(174,12,0,0.8)`
                     : complete
-                    ? '0 0 8px #00FF9C, 0 0 18px rgba(0,255,156,0.65)'
-                    : '0 0 8px #AE0C00, 0 0 18px rgba(174,12,0,0.65)',
+                    ? `0 0 10px ${EMERALD}, 0 0 24px rgba(0,255,156,0.65)`
+                    : `0 0 10px ${RED}, 0 0 24px rgba(174,12,0,0.65)`,
                   transform: 'translate(-50%, -50%)',
                   transition: 'background 0.2s ease, box-shadow 0.2s ease',
                   pointerEvents: 'none',
                 }}
               />
+
+              {/* Percentage label on bar (desktop) */}
+              {!isMobile && displayPct > 5 && (
+                <motion.div
+                  style={{
+                    position: 'absolute',
+                    top: 8,
+                    left: barWidth,
+                    transform: 'translateX(-50%)',
+                    fontFamily: FONT_MONO,
+                    fontSize: 6,
+                    letterSpacing: '0.2em',
+                    color: complete ? EMERALD : 'rgba(249,255,246,0.5)',
+                    fontWeight: 700,
+                    whiteSpace: 'nowrap',
+                    textShadow: complete ? `0 0 8px ${EMERALD}66` : 'none',
+                    transition: 'color 0.3s ease',
+                    pointerEvents: 'none',
+                  }}
+                >
+                  {String(displayPct).padStart(3, '0')}%
+                </motion.div>
+              )}
             </div>
 
             {/* ── Glass pill — desktop ───────────────────────────────────────── */}
@@ -272,14 +345,17 @@ export function AuditProgressBar({ sectionRef, isSystemFault = false, totalCards
               initial={{ opacity: 0, y: -4 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.4, delay: 0.15, ease: EASE }}
-              className="hidden sm:flex absolute top-4 right-4 items-center gap-3"
+              className="hidden sm:flex absolute top-6 right-4 items-center gap-3"
               style={{
                 background: 'rgba(14,14,14,0.72)',
                 backdropFilter: 'blur(14px)',
                 WebkitBackdropFilter: 'blur(14px)',
-                border: '0.5px solid rgba(0,255,156,0.18)',
+                border: `0.5px solid ${complete ? 'rgba(0,255,156,0.28)' : 'rgba(0,255,156,0.18)'}`,
                 padding: '6px 12px',
-                boxShadow: '0 0 18px rgba(0,255,156,0.06)',
+                boxShadow: complete
+                  ? `0 0 18px rgba(0,255,156,0.12), 0 0 36px rgba(0,255,156,0.06)`
+                  : '0 0 18px rgba(0,255,156,0.06)',
+                transition: 'border-color 0.3s ease, box-shadow 0.3s ease',
               }}
             >
               {/* Grain on pill */}
@@ -303,27 +379,28 @@ export function AuditProgressBar({ sectionRef, isSystemFault = false, totalCards
               {/* Metrics */}
               <div className="flex flex-col gap-0.5">
                 {totalCards > 0 && (
-                <span
-                  style={{
-                    fontFamily: 'monospace',
-                    fontSize: 6,
-                    letterSpacing: '0.16em',
-                    color: 'rgba(249,255,246,0.3)',
-                    fontWeight: 700,
-                    whiteSpace: 'nowrap',
-                  }}
-                >
-                  DATA_PACKETS_RETRIEVED: {String(displayCards).padStart(2, '0')}/{String(totalCards).padStart(2, '0')}
-                </span>
+                  <span
+                    style={{
+                      fontFamily: 'monospace',
+                      fontSize: 6,
+                      letterSpacing: '0.16em',
+                      color: 'rgba(249,255,246,0.3)',
+                      fontWeight: 700,
+                      whiteSpace: 'nowrap',
+                    }}
+                  >
+                    DATA_PACKETS_RETRIEVED: {String(displayCards).padStart(2, '0')}/{String(totalCards).padStart(2, '0')}
+                  </span>
                 )}
                 <span
                   style={{
                     fontFamily: 'monospace',
                     fontSize: 6,
                     letterSpacing: '0.16em',
-                    color: 'rgba(249,255,246,0.3)',
+                    color: complete ? `${EMERALD}CC` : 'rgba(249,255,246,0.3)',
                     fontWeight: 700,
                     whiteSpace: 'nowrap',
+                    transition: 'color 0.3s ease',
                   }}
                 >
                   COMPLETION_STRESS: {String(displayPct).padStart(3, '0')}%
@@ -343,14 +420,14 @@ export function AuditProgressBar({ sectionRef, isSystemFault = false, totalCards
               </div>
             </motion.div>
 
-            {/* ── Mobile micro readout — left side, clear of hamburger ─────── */}
+            {/* ── Mobile micro readout ─────────────────────────────────────── */}
             <div
-              className="sm:hidden absolute top-3 left-4"
+              className="sm:hidden absolute top-5 left-4"
               style={{
                 fontFamily: 'monospace',
                 fontSize: 6,
                 letterSpacing: '0.18em',
-                color: complete ? '#00FF9C' : 'rgba(249,255,246,0.4)',
+                color: complete ? EMERALD : 'rgba(249,255,246,0.4)',
                 fontWeight: 700,
               }}
             >

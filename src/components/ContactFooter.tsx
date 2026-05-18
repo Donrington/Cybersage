@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useEffect, useRef, useState } from 'react';
+import Image from 'next/image';
 import { useIsMobile } from '@/lib/useIsMobile';
 import { motion, AnimatePresence } from 'framer-motion';
 import gsap from 'gsap';
@@ -34,8 +35,8 @@ const SOCIAL_LINKS = [
   { dir: '/EMAIL',    href: 'mailto:carryoby@gmail.com',                               label: 'Email'    },
 ];
 
-// ─── Lagos clock ──────────────────────────────────────────────────────────────
-function useLagosTime() {
+// ─── WAT clock ────────────────────────────────────────────────────────────────
+function useWATTime() {
   const [time, setTime] = useState('');
   useEffect(() => {
     const fmt = () =>
@@ -371,7 +372,7 @@ export function ContactFooter() {
   const [payload,   setPayload]   = useState('');
   const [formState, setFormState] = useState<'idle' | 'transmitting' | 'complete'>('idle');
 
-  const lagosTime   = useLagosTime();
+  const lagosTime   = useWATTime();
   const isFormValid = name.trim().length >= 2 && subject.trim().length >= 3 && payload.trim().length >= 10;
 
   // ── Z-axis push reveal ─────────────────────────────────────────────────────
@@ -441,21 +442,26 @@ export function ContactFooter() {
         opacity: 0.05,
       }} />
 
-      {/* ── "DIGITAL WISDOM" watermark ────────────────────────────────────── */}
+      {/* ── Logo watermark ────────────────────────────────────────────────── */}
       <div style={{
         position: 'absolute', inset: 0, display: 'flex',
         alignItems: 'center', justifyContent: 'center',
         pointerEvents: 'none', zIndex: 0, overflow: 'hidden',
       }}>
-        <div style={{
-          fontFamily: FONT_DISPLAY,
-          fontSize: 'clamp(68px, 15vw, 196px)',
-          fontWeight: 900, color: 'rgba(249,255,246,0.028)',
-          letterSpacing: '-0.04em', whiteSpace: 'nowrap',
-          userSelect: 'none', lineHeight: 1,
-        }}>
-          DIGITAL WISDOM
-        </div>
+        <Image
+          src="/logo/logo_white.png"
+          alt=""
+          width={900}
+          height={420}
+          aria-hidden="true"
+          style={{
+            width: 'clamp(420px, 65vw, 900px)',
+            height: 'auto',
+            objectFit: 'contain',
+            opacity: 0.028,
+            userSelect: 'none',
+          }}
+        />
       </div>
 
       {/* ── Top separator ─────────────────────────────────────────────────── */}
@@ -630,7 +636,7 @@ export function ContactFooter() {
                 </span>
               </div>
 
-              {/* Lagos clock */}
+              {/* WAT clock */}
               <div style={{
                 padding: '14px 16px',
                 border: '0.5px solid rgba(249,255,246,0.07)',
@@ -640,7 +646,7 @@ export function ContactFooter() {
                   fontFamily: FONT_MONO, fontSize: 6.5, letterSpacing: '0.22em',
                   color: 'rgba(249,255,246,0.22)', fontWeight: 700, marginBottom: 8,
                 }}>
-                  TERMINAL_CLOCK // LAGOS, NG (WAT)
+                  TERMINAL_CLOCK // WAT (UTC+1)
                 </div>
                 <div style={{
                   fontFamily: FONT_MONO,
@@ -659,7 +665,7 @@ export function ContactFooter() {
               }}>
                 <div style={{ color: 'rgba(249,255,246,0.22)' }}>SYS_OPERATOR: ABAKWE.CARRINGTON</div>
                 <div style={{ color: 'rgba(249,255,246,0.18)' }}>VERSION: v2.0.26</div>
-                <div style={{ color: 'rgba(255,90,31,0.45)' }}>LOCATION: LAGOS_TERMINAL_NG</div>
+                <div style={{ color: 'rgba(255,90,31,0.45)' }}>LOCATION: REMOTE // AVAILABLE</div>
               </div>
 
               {/* Social directories */}

@@ -21,8 +21,8 @@ const NAV_LINKS = [
 
 const GLITCH_CHARS = '!@#$%^&*<>[]{}|/~`';
 
-// ─── Lagos clock ──────────────────────────────────────────────────────────────
-function useLagosTime() {
+// ─── WAT clock ────────────────────────────────────────────────────────────────
+function useWATTime() {
   const [time, setTime] = useState('');
   useEffect(() => {
     const fmt = () =>
@@ -134,7 +134,7 @@ export interface MobileSidebarProps {
 }
 
 export function MobileSidebar({ open, onClose }: MobileSidebarProps) {
-  const lagosTime = useLagosTime();
+  const lagosTime = useWATTime();
 
   // Scroll-driven background — transparent at top, slightly more opaque on scroll
   const scrollY   = useMotionValue(0);
@@ -254,10 +254,10 @@ export function MobileSidebar({ open, onClose }: MobileSidebarProps) {
                 fontWeight: 700, lineHeight: 2,
               }}>
                 <div style={{ color: 'rgba(249,255,246,0.22)' }}>SYS_OPERATOR: ABAKWE.CARRINGTON</div>
-                <div style={{ color: 'rgba(255,90,31,0.4)' }}>LOCATION: LAGOS_TERMINAL_NG</div>
+                <div style={{ color: 'rgba(255,90,31,0.4)' }}>LOCATION: REMOTE // AVAILABLE</div>
               </div>
 
-              {/* Live Lagos clock */}
+              {/* Live WAT clock */}
               <div style={{
                 fontFamily: FONT_MONO,
                 fontSize: 'clamp(15px, 3.8vw, 22px)',

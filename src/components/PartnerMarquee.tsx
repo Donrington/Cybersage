@@ -168,6 +168,7 @@ export function PartnerMarquee({ partners = PARTNERS }: PartnerMarqueeProps) {
   const tweenRef = useRef<gsap.core.Tween | null>(null);
   const blob1Ref = useRef<HTMLDivElement>(null);
   const blob2Ref = useRef<HTMLDivElement>(null);
+  const [sectionHovered, setSectionHovered] = useState(false);
 
   const marqueeItems = [...partners, ...partners];
 
@@ -200,9 +201,15 @@ export function PartnerMarquee({ partners = PARTNERS }: PartnerMarqueeProps) {
     return () => { t1.kill(); t2.kill(); };
   }, []);
 
-  // ── Time dilation on section hover (50% slowdown) ─────────────────────────
-  const handleSectionEnter = useCallback(() => tweenRef.current?.timeScale(0.45), []);
-  const handleSectionLeave = useCallback(() => tweenRef.current?.timeScale(1), []);
+  // ── Magnetic pause: cursor enters = dramatic slowdown ─────────────────────
+  const handleSectionEnter = useCallback(() => {
+    setSectionHovered(true);
+    gsap.to(tweenRef.current, { timeScale: 0.18, duration: 0.8, ease: 'power2.out' });
+  }, []);
+  const handleSectionLeave = useCallback(() => {
+    setSectionHovered(false);
+    gsap.to(tweenRef.current, { timeScale: 1, duration: 1.1, ease: 'power2.inOut' });
+  }, []);
 
   return (
     <div
@@ -212,6 +219,7 @@ export function PartnerMarquee({ partners = PARTNERS }: PartnerMarqueeProps) {
         position: 'relative', width: '100%', overflow: 'hidden',
         background: 'radial-gradient(ellipse 90% 120% at 50% 50%, #161616 0%, #050505 100%)',
         paddingTop: 32, paddingBottom: 32,
+        transition: 'background 0.5s ease',
       }}
     >
       {/* ── Cyber Nebula — Emerald blob ────────────────────────────────────── */}

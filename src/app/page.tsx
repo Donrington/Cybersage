@@ -6,7 +6,7 @@ import { Narrative } from "@/components/Narrative";
 import { ExperienceTimeline } from "@/components/ExperienceTimeline";
 import { PartnerMarquee } from "@/components/PartnerMarquee";
 import { ProjectBento } from "@/components/ProjectBento";
-import { NetworkIntel } from "@/components/NetworkIntel";
+import { Services } from "@/components/Services";
 import { TechInfrastructure } from "@/components/TechInfrastructure";
 import { ContactFooter } from "@/components/ContactFooter";
 import { SystemLoader } from "@/components/SystemLoader";
@@ -34,7 +34,7 @@ export default function Home() {
         <div id="audit"><ExperienceTimeline /></div>
         <PartnerMarquee />
         <div id="bento"><ProjectBento /></div>
-        <div id="intel"><NetworkIntel /></div>
+        <div id="services"><Services /></div>
         <TechInfrastructure />
         <div id="uplink"><ContactFooter /></div>
       </main>

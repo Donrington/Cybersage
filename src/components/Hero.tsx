@@ -2,6 +2,7 @@
 
 import { useRef, useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
+import Image from 'next/image';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { Wifi, Mouse, ArrowUpRight } from 'lucide-react';
@@ -247,9 +248,19 @@ export function Hero() {
         transition={{ duration: 0.7, ease: EASE }}
         className="relative z-30 flex items-center justify-between px-6 sm:px-8 md:px-12 lg:px-14 py-3 sm:py-4 lg:py-5 border-b border-white/4"
       >
-        <span className="font-mono text-[8px] sm:text-[9px] md:text-[10px] tracking-[0.3em] sm:tracking-[0.35em] lg:tracking-[0.45em] text-cybersage-cream/20 uppercase select-none">
-          Cybersage
-        </span>
+        <Image
+          src="/logo/logo_white.png"
+          alt="Cybersage"
+          width={400}
+          height={50}
+          style={{
+            height: 50,
+            width: 'auto',
+            objectFit: 'contain',
+            opacity: 0.85,
+          }}
+          priority
+        />
 
         <div className="flex items-center gap-1 sm:gap-2">
           <Wifi size={8} className="sm:w-2.5 sm:h-2.5 text-cybersage-emerald animate-pulse" strokeWidth={2} />
@@ -315,7 +326,7 @@ export function Hero() {
                 transition: 'filter 0.1s',
               }}
             >
-              Full Stack Engineer&nbsp;// Building from Lagos
+              Full Stack Engineer&nbsp;// Remote · Available Worldwide
             </motion.p>
 
             {/* Ghost CTA buttons with hex addresses */}
@@ -342,7 +353,19 @@ export function Hero() {
           className="relative w-full lg:w-[62%] h-64 sm:h-80 md:h-96 lg:h-auto"
           style={{ marginRight: '-3%' }}
         >
-          <div className="absolute inset-y-0 left-0 w-px pointer-events-none z-10 bg-gradient-to-b from-transparent via-cybersage-emerald/18 to-transparent" />
+          {/* Pulsing inner glow on the canvas panel */}
+          <motion.div
+            className="absolute inset-0 pointer-events-none z-20 hidden lg:block"
+            animate={{
+              boxShadow: [
+                'inset 0 0 40px rgba(174,12,0,0.04)',
+                'inset 0 0 90px rgba(174,12,0,0.10)',
+                'inset 0 0 40px rgba(174,12,0,0.04)',
+              ],
+            }}
+            transition={{ duration: 5, repeat: Infinity, ease: 'easeInOut' }}
+          />
+
           <AsciiCanvas />
         </div>
 

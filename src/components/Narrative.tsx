@@ -75,13 +75,11 @@ interface PanelData {
 const PANELS: PanelData[] = [
   {
     sysId:     '001-ALPHA',
-    header:    'ORIGIN // LAGOS_NG',
+    header:    'ORIGIN // GLOBAL',
     scanColor: '#00FF9C',
     body: (
       <>
-        5+ years building real systems for real clients.{' '}
-        <span style={{ color: '#AE0C00' }}>Lagos</span>-based,{' '}
-        deployed{' '}
+        5+ years building production systems for global clients. Remote-first, deployed{' '}
         <span style={{ color: '#AE0C00' }}>worldwide</span>.
       </>
     ),

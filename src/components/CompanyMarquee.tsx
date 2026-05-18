@@ -14,7 +14,7 @@ const COMPANIES = [
   'NEXTGEN ROBOTICS',
   'AXFLO OIL',
   'SAMDUS OIL',
-  'DEETS NIGERIA',
+  'DEETS',
   'HANDYMAN',
   'TWERK QUEEN',
   'ROKEYLA',
@@ -86,9 +86,14 @@ function CompanyItem({ name }: { name: string }) {
           opacity: hovered ? 1 : 0.28,
           color: '#F9FFF6',
           mixBlendMode: 'difference',
-          textShadow: hovered ? '0 0 22px rgba(249,255,246,0.8), 0 0 48px rgba(174,12,0,0.4)' : 'none',
+          textShadow: hovered
+            ? '0 0 22px rgba(249,255,246,0.85), 0 0 48px rgba(174,12,0,0.4), 0 0 80px rgba(0,255,156,0.15)'
+            : 'none',
           transition: 'opacity 0.32s ease, text-shadow 0.32s ease',
           willChange: 'transform',
+          filter: hovered
+            ? 'drop-shadow(1.5px 0 0 rgba(174,12,0,0.5)) drop-shadow(-1.5px 0 0 rgba(0,255,156,0.35))'
+            : 'none',
         }}
       >
         {name}

@@ -35,7 +35,7 @@ export const metadata: Metadata = {
     "System Performance Optimization",
     "Abakwe Carrington",
     "Cybersage Portfolio",
-    "Lagos Software Engineer",
+    "Remote Senior Full Stack Engineer",
     "Remote Senior Developer",
     "Next.js Developer",
     "PostgreSQL",
@@ -136,7 +136,7 @@ const PERSON_SCHEMA = {
   },
   address: {
     "@type": "PostalAddress",
-    addressLocality: "Lagos",
+    addressLocality: "Remote",
     addressCountry: "NG",
   },
   email: "carryoby@gmail.com",
