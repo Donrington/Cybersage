@@ -559,70 +559,6 @@ export function SystemLoader({ onComplete }: SystemLoaderProps) {
             </div>
           )}
 
-          {/* ── LOGO — focal point above rings ───────────────────────────── */}
-          <motion.div
-            initial={{ opacity: 0, y: -16 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, delay: 0.15, ease: EASE }}
-            style={{ position: 'relative', zIndex: 10, marginBottom: isMobile ? 12 : 20 }}
-          >
-            {/* Corner brackets around logo */}
-            {(['tl','tr','bl','br'] as const).map(c => (
-              <div key={c} style={{
-                position: 'absolute',
-                top:    c[0] === 't' ? -8  : 'auto',
-                bottom: c[0] === 'b' ? -8  : 'auto',
-                left:   c[1] === 'l' ? -12 : 'auto',
-                right:  c[1] === 'r' ? -12 : 'auto',
-                width: 14, height: 14,
-                borderTop:    c[0] === 't' ? `1px solid ${coreColor}88` : 'none',
-                borderBottom: c[0] === 'b' ? `1px solid ${coreColor}88` : 'none',
-                borderLeft:   c[1] === 'l' ? `1px solid ${coreColor}88` : 'none',
-                borderRight:  c[1] === 'r' ? `1px solid ${coreColor}88` : 'none',
-                transition: 'border-color 0.4s ease',
-              }} />
-            ))}
-
-            {/* Pulsing logo */}
-            <motion.div
-              animate={{
-                scale:   [0.97, 1.03, 0.97],
-                opacity: [0.82, 1,    0.82],
-              }}
-              transition={{ duration: 2.6, ease: 'easeInOut', repeat: Infinity }}
-              style={{
-                filter: `drop-shadow(0 0 ${8 + (progress / 100) * 28}px ${coreColor}CC) drop-shadow(0 0 ${4 + (progress / 100) * 12}px ${coreColor}66)`,
-                transition: 'filter 0.5s ease',
-                padding: isMobile ? '10px 20px' : '14px 28px',
-              }}
-            >
-              <Image
-                src="/logo/logo_white.png"
-                alt="Cybersage"
-                width={isMobile ? 220 : 340}
-                height={isMobile ? 56  : 86}
-                style={{
-                  height: isMobile ? 48 : 72,
-                  width: 'auto',
-                  maxWidth: isMobile ? '68vw' : '38vw',
-                  objectFit: 'contain',
-                }}
-                priority
-              />
-            </motion.div>
-
-            {/* Underline glow */}
-            <motion.div
-              animate={{ scaleX: [0.4, 1, 0.4], opacity: [0.3, 0.85, 0.3] }}
-              transition={{ duration: 2.6, ease: 'easeInOut', repeat: Infinity }}
-              style={{
-                height: 1, marginTop: 2,
-                background: `linear-gradient(to right, transparent, ${coreColor}, transparent)`,
-                boxShadow: `0 0 12px ${coreColor}66`,
-              }}
-            />
-          </motion.div>
-
           {/* ── Rings + core composition ─────────────────────────────────── */}
           <motion.div
             animate={blasting ? {
@@ -646,8 +582,8 @@ export function SystemLoader({ onComplete }: SystemLoaderProps) {
             }
             style={{
               position: 'relative',
-              width: isMobile ? 200 : 320,
-              height: isMobile ? 200 : 320,
+              width: isMobile ? 260 : 400,
+              height: isMobile ? 260 : 400,
               zIndex: 10,
             }}
           >
@@ -720,21 +656,64 @@ export function SystemLoader({ onComplete }: SystemLoaderProps) {
               </>
             )}
 
-            {/* ── Center glow orb ── */}
+            {/* ── Center glow orb (behind logo) ── */}
             <div style={{
               position: 'absolute', inset: 0,
               display: 'flex', alignItems: 'center', justifyContent: 'center',
               zIndex: 3, pointerEvents: 'none',
             }}>
               <motion.div
-                animate={{ scale: [0.85, 1.1, 0.85], opacity: [0.3, 0.6, 0.3] }}
+                animate={{ scale: [0.85, 1.15, 0.85], opacity: [0.25, 0.55, 0.25] }}
                 transition={{ duration: 2.6, ease: 'easeInOut', repeat: Infinity }}
                 style={{
-                  width: isMobile ? 60 : 90, height: isMobile ? 60 : 90,
+                  width: isMobile ? 120 : 180, height: isMobile ? 120 : 180,
                   borderRadius: '50%',
-                  background: `radial-gradient(circle, ${coreColor}55 0%, ${FLAME}22 50%, transparent 75%)`,
+                  background: `radial-gradient(circle, ${coreColor}44 0%, ${FLAME}18 55%, transparent 80%)`,
                 }}
               />
+            </div>
+
+            {/* ── Logo — centred inside rings, dominant ── */}
+            <div style={{
+              position: 'absolute', inset: 0,
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              zIndex: 6, pointerEvents: 'none',
+            }}>
+              <motion.div
+                animate={{
+                  scale:   [0.95, 1.05, 0.95],
+                  opacity: [0.8, 1, 0.8],
+                }}
+                transition={{ duration: 2.4, ease: 'easeInOut', repeat: Infinity }}
+                style={{
+                  filter: `drop-shadow(0 0 ${10 + (progress / 100) * 24}px ${coreColor}CC) drop-shadow(0 0 ${5 + (progress / 100) * 12}px ${coreColor}77)`,
+                  transition: 'filter 0.4s ease',
+                  display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6,
+                }}
+              >
+                <Image
+                  src="/logo/logo_white.png"
+                  alt="Cybersage"
+                  width={isMobile ? 160 : 220}
+                  height={isMobile ? 48  : 64}
+                  style={{
+                    height: isMobile ? 38 : 56,
+                    width: 'auto',
+                    maxWidth: isMobile ? '55vw' : '260px',
+                    objectFit: 'contain',
+                  }}
+                  priority
+                />
+                {/* Underline pulse beneath logo */}
+                <motion.div
+                  animate={{ scaleX: [0.3, 1, 0.3], opacity: [0.2, 0.7, 0.2] }}
+                  transition={{ duration: 2.4, ease: 'easeInOut', repeat: Infinity }}
+                  style={{
+                    height: 1, width: isMobile ? 120 : 180,
+                    background: `linear-gradient(to right, transparent, ${coreColor}, transparent)`,
+                  }}
+                />
+              </motion.div>
             </div>
           </motion.div>
 
