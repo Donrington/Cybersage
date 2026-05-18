@@ -516,6 +516,28 @@ export function SystemLoader({ onComplete }: SystemLoaderProps) {
             transition: 'background 0.4s ease',
           }} />
 
+          {/* ── Full-screen corner brackets ───────────────────────────────── */}
+          {(['tl','tr','bl','br'] as const).map(c => (
+            <motion.div
+              key={c}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.5, delay: 0.3 }}
+              style={{
+                position: 'absolute', zIndex: 8, pointerEvents: 'none',
+                top:    c[0] === 't' ? isMobile ? 14 : 24 : 'auto',
+                bottom: c[0] === 'b' ? isMobile ? 14 : 24 : 'auto',
+                left:   c[1] === 'l' ? isMobile ? 14 : 28 : 'auto',
+                right:  c[1] === 'r' ? isMobile ? 14 : 28 : 'auto',
+                width: isMobile ? 18 : 28, height: isMobile ? 18 : 28,
+                borderTop:    c[0] === 't' ? `1px solid ${EMERALD}44` : 'none',
+                borderBottom: c[0] === 'b' ? `1px solid ${EMERALD}44` : 'none',
+                borderLeft:   c[1] === 'l' ? `1px solid ${EMERALD}44` : 'none',
+                borderRight:  c[1] === 'r' ? `1px solid ${EMERALD}44` : 'none',
+              }}
+            />
+          ))}
+
           {/* ── Ghost percentage — desktop only (expensive large text) ─────── */}
           {!isMobile && (
             <div
@@ -536,6 +558,70 @@ export function SystemLoader({ onComplete }: SystemLoaderProps) {
               {String(progress).padStart(3, '0')}%
             </div>
           )}
+
+          {/* ── LOGO — focal point above rings ───────────────────────────── */}
+          <motion.div
+            initial={{ opacity: 0, y: -16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, delay: 0.15, ease: EASE }}
+            style={{ position: 'relative', zIndex: 10, marginBottom: isMobile ? 12 : 20 }}
+          >
+            {/* Corner brackets around logo */}
+            {(['tl','tr','bl','br'] as const).map(c => (
+              <div key={c} style={{
+                position: 'absolute',
+                top:    c[0] === 't' ? -8  : 'auto',
+                bottom: c[0] === 'b' ? -8  : 'auto',
+                left:   c[1] === 'l' ? -12 : 'auto',
+                right:  c[1] === 'r' ? -12 : 'auto',
+                width: 14, height: 14,
+                borderTop:    c[0] === 't' ? `1px solid ${coreColor}88` : 'none',
+                borderBottom: c[0] === 'b' ? `1px solid ${coreColor}88` : 'none',
+                borderLeft:   c[1] === 'l' ? `1px solid ${coreColor}88` : 'none',
+                borderRight:  c[1] === 'r' ? `1px solid ${coreColor}88` : 'none',
+                transition: 'border-color 0.4s ease',
+              }} />
+            ))}
+
+            {/* Pulsing logo */}
+            <motion.div
+              animate={{
+                scale:   [0.97, 1.03, 0.97],
+                opacity: [0.82, 1,    0.82],
+              }}
+              transition={{ duration: 2.6, ease: 'easeInOut', repeat: Infinity }}
+              style={{
+                filter: `drop-shadow(0 0 ${8 + (progress / 100) * 28}px ${coreColor}CC) drop-shadow(0 0 ${4 + (progress / 100) * 12}px ${coreColor}66)`,
+                transition: 'filter 0.5s ease',
+                padding: isMobile ? '10px 20px' : '14px 28px',
+              }}
+            >
+              <Image
+                src="/logo/logo_white.png"
+                alt="Cybersage"
+                width={isMobile ? 220 : 340}
+                height={isMobile ? 56  : 86}
+                style={{
+                  height: isMobile ? 48 : 72,
+                  width: 'auto',
+                  maxWidth: isMobile ? '68vw' : '38vw',
+                  objectFit: 'contain',
+                }}
+                priority
+              />
+            </motion.div>
+
+            {/* Underline glow */}
+            <motion.div
+              animate={{ scaleX: [0.4, 1, 0.4], opacity: [0.3, 0.85, 0.3] }}
+              transition={{ duration: 2.6, ease: 'easeInOut', repeat: Infinity }}
+              style={{
+                height: 1, marginTop: 2,
+                background: `linear-gradient(to right, transparent, ${coreColor}, transparent)`,
+                boxShadow: `0 0 12px ${coreColor}66`,
+              }}
+            />
+          </motion.div>
 
           {/* ── Rings + core composition ─────────────────────────────────── */}
           <motion.div
@@ -560,51 +646,59 @@ export function SystemLoader({ onComplete }: SystemLoaderProps) {
             }
             style={{
               position: 'relative',
-              width: isMobile ? 240 : 380,
-              height: isMobile ? 240 : 380,
+              width: isMobile ? 200 : 320,
+              height: isMobile ? 200 : 320,
               zIndex: 10,
             }}
           >
             {isMobile ? (
               /* ── Mobile: lightweight CSS rings — no SVG filters ── */
               <>
-                {/* Outer rotating ring */}
+                {/* Outer dashed ring */}
                 <motion.div
                   animate={{ rotate: 360 }}
-                  transition={{ duration: 10, ease: 'linear', repeat: Infinity }}
+                  transition={{ duration: 12, ease: 'linear', repeat: Infinity }}
                   style={{
                     position: 'absolute', inset: 0, borderRadius: '50%',
-                    border: `1px dashed rgba(0,255,156,0.35)`,
+                    border: `1px dashed ${EMERALD}55`,
                   }}
                 />
-                {/* Middle counter-rotating ring */}
+                {/* Second ring */}
                 <motion.div
                   animate={{ rotate: -360 }}
-                  transition={{ duration: 16, ease: 'linear', repeat: Infinity }}
+                  transition={{ duration: 18, ease: 'linear', repeat: Infinity }}
                   style={{
-                    position: 'absolute', inset: 24, borderRadius: '50%',
-                    border: `0.5px solid rgba(0,255,156,0.15)`,
-                    borderTop: `1px solid ${EMERALD}88`,
+                    position: 'absolute', inset: 18, borderRadius: '50%',
+                    border: `0.5px solid rgba(0,255,156,0.18)`,
+                    borderTop: `1px solid ${EMERALD}99`,
+                    borderRight: `1px solid ${FLAME}55`,
                   }}
                 />
-                {/* Inner dashed ring */}
+                {/* Third ring */}
                 <motion.div
                   animate={{ rotate: 360 }}
-                  transition={{ duration: 7, ease: 'linear', repeat: Infinity }}
+                  transition={{ duration: 8, ease: 'linear', repeat: Infinity }}
                   style={{
-                    position: 'absolute', inset: 52, borderRadius: '50%',
-                    border: `0.5px dashed rgba(255,90,31,0.28)`,
+                    position: 'absolute', inset: 38, borderRadius: '50%',
+                    border: `0.5px dashed ${FLAME}44`,
+                    borderBottom: `1px solid ${FLAME}88`,
                   }}
                 />
-                {/* Radial glow */}
-                <motion.div
-                  animate={{ opacity: [0.4, 0.8, 0.4], scale: [0.9, 1.05, 0.9] }}
-                  transition={{ duration: 2.2, ease: 'easeInOut', repeat: Infinity }}
-                  style={{
-                    position: 'absolute', inset: '30%', borderRadius: '50%',
-                    background: `radial-gradient(circle, ${coreColor}44 0%, transparent 70%)`,
-                  }}
-                />
+                {/* Progress arc ring — fills with progress */}
+                <svg
+                  viewBox="0 0 200 200"
+                  width="100%" height="100%"
+                  style={{ position: 'absolute', inset: 0, transform: 'rotate(-90deg)' }}
+                >
+                  <circle cx="100" cy="100" r="95" fill="none"
+                    stroke={`${EMERALD}22`} strokeWidth="1" />
+                  <circle cx="100" cy="100" r="95" fill="none"
+                    stroke={coreColor} strokeWidth="1.5"
+                    strokeDasharray={`${2 * Math.PI * 95}`}
+                    strokeDashoffset={`${2 * Math.PI * 95 * (1 - progress / 100)}`}
+                    style={{ transition: 'stroke-dashoffset 0.06s linear, stroke 0.3s ease' }}
+                  />
+                </svg>
               </>
             ) : (
               /* ── Desktop: full SVG rings + plasma ── */
@@ -626,36 +720,21 @@ export function SystemLoader({ onComplete }: SystemLoaderProps) {
               </>
             )}
 
-            {/* ── Pulsating logo — centered over everything ── */}
+            {/* ── Center glow orb ── */}
             <div style={{
               position: 'absolute', inset: 0,
               display: 'flex', alignItems: 'center', justifyContent: 'center',
-              zIndex: 5, pointerEvents: 'none',
+              zIndex: 3, pointerEvents: 'none',
             }}>
               <motion.div
-                animate={{
-                  scale: [0.94, 1.04, 0.94],
-                  opacity: [0.65, 1, 0.65],
-                }}
-                transition={{ duration: 2.2, ease: 'easeInOut', repeat: Infinity }}
+                animate={{ scale: [0.85, 1.1, 0.85], opacity: [0.3, 0.6, 0.3] }}
+                transition={{ duration: 2.6, ease: 'easeInOut', repeat: Infinity }}
                 style={{
-                  filter: `drop-shadow(0 0 ${6 + (progress / 100) * 14}px ${coreColor}99)`,
-                  transition: 'filter 0.4s ease',
+                  width: isMobile ? 60 : 90, height: isMobile ? 60 : 90,
+                  borderRadius: '50%',
+                  background: `radial-gradient(circle, ${coreColor}55 0%, ${FLAME}22 50%, transparent 75%)`,
                 }}
-              >
-                <Image
-                  src="/logo/logo_white.png"
-                  alt="Cybersage"
-                  width={isMobile ? 100 : 130}
-                  height={isMobile ? 36 : 46}
-                  style={{
-                    height: isMobile ? 28 : 40,
-                    width: 'auto',
-                    objectFit: 'contain',
-                  }}
-                  priority
-                />
-              </motion.div>
+              />
             </div>
           </motion.div>
 
@@ -852,32 +931,22 @@ export function SystemLoader({ onComplete }: SystemLoaderProps) {
             </div>
           </motion.div>
 
-          {/* ── Top-left logo sig ────────────────────────────────────────── */}
+          {/* ── Bottom-center version tag ────────────────────────────────── */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ duration: 0.4, delay: 0.4, ease: EASE }}
+            transition={{ duration: 0.4, delay: 0.6, ease: EASE }}
             style={{
               position: 'absolute',
-              top: isMobile ? 16 : 24,
-              left: isMobile ? 16 : 32,
-              zIndex: 10,
-              pointerEvents: 'none',
+              bottom: isMobile ? 14 : 22,
+              left: '50%', transform: 'translateX(-50%)',
+              zIndex: 10, pointerEvents: 'none',
+              fontFamily: FONT_MONO, fontSize: 5.5,
+              letterSpacing: '0.24em', fontWeight: 700,
+              color: `${EMERALD}44`, whiteSpace: 'nowrap',
             }}
           >
-            <Image
-              src="/logo/cybersage_horizontal.png"
-              alt="Cybersage"
-              width={140}
-              height={28}
-              style={{
-                height: isMobile ? 24 : 32,
-                width: 'auto',
-                objectFit: 'contain',
-                opacity: 0.75,
-              }}
-              priority
-            />
+            CYBERSAGE_v2 // PORTFOLIO_MATRIX
           </motion.div>
         </motion.div>
       )}
