@@ -370,7 +370,10 @@ export function ContactFooter() {
   const [name,      setName]      = useState('');
   const [subject,   setSubject]   = useState('');
   const [payload,   setPayload]   = useState('');
-  const [formState, setFormState] = useState<'idle' | 'transmitting' | 'complete'>('idle');
+  const [formState, setFormState] = useState<'idle' | 'transmitting' | 'complete' | 'error'>('idle');
+  const [sendError, setSendError] = useState('');
+  const apiResultRef = useRef<'pending' | 'ok' | 'fail'>('pending');
+  const animDoneRef  = useRef(false);
 
   const lagosTime   = useWATTime();
   const isFormValid = name.trim().length >= 2 && subject.trim().length >= 3 && payload.trim().length >= 10;
@@ -543,7 +546,32 @@ export function ContactFooter() {
                     />
                     <div style={{ marginTop: 8 }}>
                       <BiometricButton
-                        onSubmit={() => setFormState('transmitting')}
+                        onSubmit={() => {
+                          apiResultRef.current = 'pending';
+                          animDoneRef.current  = false;
+                          setFormState('transmitting');
+                          fetch('/api/contact', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ name, subject, message: payload }),
+                          })
+                            .then(async (res) => {
+                              if (!res.ok) {
+                                const data = await res.json();
+                                setSendError(data.error ?? 'Transmission failed');
+                                apiResultRef.current = 'fail';
+                                if (animDoneRef.current) setFormState('error');
+                              } else {
+                                apiResultRef.current = 'ok';
+                                if (animDoneRef.current) setFormState('complete');
+                              }
+                            })
+                            .catch(() => {
+                              setSendError('Network error — check connection');
+                              apiResultRef.current = 'fail';
+                              if (animDoneRef.current) setFormState('error');
+                            });
+                        }}
                         disabled={!isFormValid}
                       />
                     </div>
@@ -557,7 +585,49 @@ export function ContactFooter() {
                     animate={{ opacity: 1 }}
                     transition={{ duration: 0.32, ease: EASE }}
                   >
-                    <TransmissionLog onComplete={() => setFormState('complete')} />
+                    <TransmissionLog onComplete={() => {
+                      animDoneRef.current = true;
+                      if (apiResultRef.current === 'ok')   setFormState('complete');
+                      if (apiResultRef.current === 'fail') setFormState('error');
+                      // if still 'pending', wait for fetch to resolve and set state
+                    }} />
+                  </motion.div>
+                )}
+
+                {formState === 'error' && (
+                  <motion.div
+                    key="error"
+                    initial={{ opacity: 0, scale: 0.97 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ duration: 0.45, ease: EASE }}
+                    style={{ paddingTop: 16, minHeight: 300 }}
+                  >
+                    <div style={{
+                      fontFamily: FONT_DISPLAY,
+                      fontSize: 'clamp(22px, 4vw, 48px)',
+                      fontWeight: 900, color: DEEP_RED,
+                      letterSpacing: '-0.02em', lineHeight: 1.05,
+                      textShadow: `0 0 48px ${DEEP_RED}55`,
+                    }}>
+                      TRANSMISSION<br />FAILED
+                    </div>
+                    <div style={{
+                      fontFamily: FONT_MONO, fontSize: 8, letterSpacing: '0.18em',
+                      color: 'rgba(249,255,246,0.3)', marginTop: 14, lineHeight: 2,
+                    }}>
+                      {sendError || 'UPLINK_ERROR // RETRY_REQUIRED'}
+                    </div>
+                    <button
+                      onClick={() => { setFormState('idle'); setSendError(''); }}
+                      style={{
+                        marginTop: 24, fontFamily: FONT_MONO, fontSize: 8,
+                        letterSpacing: '0.22em', color: FLAME, background: 'none',
+                        border: `0.5px solid ${FLAME}44`, padding: '8px 18px',
+                        cursor: 'crosshair', fontWeight: 700,
+                      }}
+                    >
+                      RETRY_UPLINK
+                    </button>
                   </motion.div>
                 )}
 
