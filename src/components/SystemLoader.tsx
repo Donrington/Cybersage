@@ -377,15 +377,16 @@ export function SystemLoader({ onComplete }: SystemLoaderProps) {
 
   const titleText = useGlitchText(titleTarget, glitchActive);
 
-  // Random chroma pulse while loading
+  // Chroma pulse — less frequent on mobile to save CPU
   useEffect(() => {
     if (done) return;
+    const interval = isMobile ? 4000 : 2200;
     const id = setInterval(() => {
       setChromaShift(true);
-      setTimeout(() => setChromaShift(false), 120);
-    }, 2200 + Math.random() * 1000);
+      setTimeout(() => setChromaShift(false), 100);
+    }, interval + Math.random() * 800);
     return () => clearInterval(id);
-  }, [done]);
+  }, [done, isMobile]);
 
   // Main progress timeline
   useEffect(() => {
@@ -515,29 +516,26 @@ export function SystemLoader({ onComplete }: SystemLoaderProps) {
             transition: 'background 0.4s ease',
           }} />
 
-          {/* ── Big ghost percentage — background watermark ───────────────── */}
-          <div
-            ref={pctRef}
-            style={{
-              position: 'absolute',
-              top: '50%',
-              left: '50%',
-              transform: 'translate(-50%, -50%)',
-              fontFamily: FONT_DISPLAY,
-              fontSize: isMobile ? 'clamp(120px, 32vw, 180px)' : 'clamp(180px, 22vw, 320px)',
-              fontWeight: 900,
-              color: 'transparent',
-              WebkitTextStroke: `1px ${coreColor}18`,
-              letterSpacing: '-0.04em',
-              lineHeight: 1,
-              pointerEvents: 'none',
-              zIndex: 0,
-              userSelect: 'none',
-              whiteSpace: 'nowrap',
-            }}
-          >
-            {String(progress).padStart(3, '0')}%
-          </div>
+          {/* ── Ghost percentage — desktop only (expensive large text) ─────── */}
+          {!isMobile && (
+            <div
+              ref={pctRef}
+              style={{
+                position: 'absolute',
+                top: '50%', left: '50%',
+                transform: 'translate(-50%, -50%)',
+                fontFamily: FONT_DISPLAY,
+                fontSize: 'clamp(180px, 22vw, 320px)',
+                fontWeight: 900, color: 'transparent',
+                WebkitTextStroke: `1px ${coreColor}18`,
+                letterSpacing: '-0.04em', lineHeight: 1,
+                pointerEvents: 'none', zIndex: 0,
+                userSelect: 'none', whiteSpace: 'nowrap',
+              }}
+            >
+              {String(progress).padStart(3, '0')}%
+            </div>
+          )}
 
           {/* ── Rings + core composition ─────────────────────────────────── */}
           <motion.div
@@ -562,23 +560,101 @@ export function SystemLoader({ onComplete }: SystemLoaderProps) {
             }
             style={{
               position: 'relative',
-              width: isMobile ? 260 : 380,
-              height: isMobile ? 260 : 380,
+              width: isMobile ? 240 : 380,
+              height: isMobile ? 240 : 380,
               zIndex: 10,
             }}
           >
-            <div style={{ position: 'absolute', inset: 0 }}>
-              <Rings isMobile={isMobile} />
-            </div>
+            {isMobile ? (
+              /* ── Mobile: lightweight CSS rings — no SVG filters ── */
+              <>
+                {/* Outer rotating ring */}
+                <motion.div
+                  animate={{ rotate: 360 }}
+                  transition={{ duration: 10, ease: 'linear', repeat: Infinity }}
+                  style={{
+                    position: 'absolute', inset: 0, borderRadius: '50%',
+                    border: `1px dashed rgba(0,255,156,0.35)`,
+                  }}
+                />
+                {/* Middle counter-rotating ring */}
+                <motion.div
+                  animate={{ rotate: -360 }}
+                  transition={{ duration: 16, ease: 'linear', repeat: Infinity }}
+                  style={{
+                    position: 'absolute', inset: 24, borderRadius: '50%',
+                    border: `0.5px solid rgba(0,255,156,0.15)`,
+                    borderTop: `1px solid ${EMERALD}88`,
+                  }}
+                />
+                {/* Inner dashed ring */}
+                <motion.div
+                  animate={{ rotate: 360 }}
+                  transition={{ duration: 7, ease: 'linear', repeat: Infinity }}
+                  style={{
+                    position: 'absolute', inset: 52, borderRadius: '50%',
+                    border: `0.5px dashed rgba(255,90,31,0.28)`,
+                  }}
+                />
+                {/* Radial glow */}
+                <motion.div
+                  animate={{ opacity: [0.4, 0.8, 0.4], scale: [0.9, 1.05, 0.9] }}
+                  transition={{ duration: 2.2, ease: 'easeInOut', repeat: Infinity }}
+                  style={{
+                    position: 'absolute', inset: '30%', borderRadius: '50%',
+                    background: `radial-gradient(circle, ${coreColor}44 0%, transparent 70%)`,
+                  }}
+                />
+              </>
+            ) : (
+              /* ── Desktop: full SVG rings + plasma ── */
+              <>
+                <div style={{ position: 'absolute', inset: 0 }}>
+                  <Rings isMobile={isMobile} />
+                </div>
+                <div style={{
+                  position: 'absolute', inset: 0,
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                }}>
+                  <motion.div
+                    animate={{ scale: [1, 1.035, 1] }}
+                    transition={{ duration: 1.8, ease: 'easeInOut', repeat: Infinity }}
+                  >
+                    <PlasmaCore progress={progress} isMobile={isMobile} />
+                  </motion.div>
+                </div>
+              </>
+            )}
+
+            {/* ── Pulsating logo — centered over everything ── */}
             <div style={{
               position: 'absolute', inset: 0,
               display: 'flex', alignItems: 'center', justifyContent: 'center',
+              zIndex: 5, pointerEvents: 'none',
             }}>
               <motion.div
-                animate={{ scale: [1, 1.035, 1] }}
-                transition={{ duration: 1.8, ease: 'easeInOut', repeat: Infinity }}
+                animate={{
+                  scale: [0.94, 1.04, 0.94],
+                  opacity: [0.65, 1, 0.65],
+                }}
+                transition={{ duration: 2.2, ease: 'easeInOut', repeat: Infinity }}
+                style={{
+                  filter: `drop-shadow(0 0 ${6 + (progress / 100) * 14}px ${coreColor}99)`,
+                  transition: 'filter 0.4s ease',
+                }}
               >
-                <PlasmaCore progress={progress} isMobile={isMobile} />
+                <Image
+                  src="/logo/logo_white.png"
+                  alt="Cybersage"
+                  width={isMobile ? 100 : 130}
+                  height={isMobile ? 36 : 46}
+                  style={{
+                    height: isMobile ? 28 : 40,
+                    width: 'auto',
+                    objectFit: 'contain',
+                  }}
+                  priority
+                />
               </motion.div>
             </div>
           </motion.div>
