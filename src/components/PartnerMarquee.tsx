@@ -105,9 +105,9 @@ function LogoCard({ partner }: { partner: Partner }) {
       {/* ── Data-cell container ───────────────────────────────────────────── */}
       <div style={{
         position: 'relative',
-        padding: '9px 18px',
+        padding: '14px 28px',
         display: 'flex', alignItems: 'center', justifyContent: 'center',
-        minWidth: 96,
+        minWidth: 140,
       }}>
         <Corners active={hovered} />
 
@@ -115,7 +115,7 @@ function LogoCard({ partner }: { partner: Partner }) {
         {hovered && (
           <div style={{
             position: 'absolute', inset: -5,
-            boxShadow: `0 0 14px ${EMERALD}2A, 0 0 28px ${EMERALD}14`,
+            boxShadow: `0 0 18px ${EMERALD}2A, 0 0 36px ${EMERALD}14`,
             pointerEvents: 'none',
           }} />
         )}
@@ -125,14 +125,14 @@ function LogoCard({ partner }: { partner: Partner }) {
           <Image
             src={partner.src}
             alt={partner.name}
-            width={80}
-            height={28}
+            width={160}
+            height={56}
             style={{
-              height: 24, width: 'auto', objectFit: 'contain',
+              height: 48, width: 'auto', objectFit: 'contain',
               filter: hovered
                 ? 'grayscale(0) brightness(1.18)'
                 : 'grayscale(100%) brightness(0.85)',
-              opacity: hovered ? 1 : 0.36,
+              opacity: hovered ? 1 : 0.45,
               transition: 'filter 0.26s ease, opacity 0.26s ease',
               mixBlendMode: 'screen',
             }}
@@ -141,10 +141,10 @@ function LogoCard({ partner }: { partner: Partner }) {
           /* Text-only partner */
           <span style={{
             fontFamily: FONT_DISPLAY,
-            fontSize: 7,
+            fontSize: 11,
             letterSpacing: '0.18em',
             fontWeight: 900,
-            color: hovered ? '#F9FFF6' : 'rgba(249,255,246,0.3)',
+            color: hovered ? '#F9FFF6' : 'rgba(249,255,246,0.35)',
             transition: 'color 0.26s ease',
             whiteSpace: 'nowrap',
             mixBlendMode: 'screen',
@@ -218,7 +218,7 @@ export function PartnerMarquee({ partners = PARTNERS }: PartnerMarqueeProps) {
       style={{
         position: 'relative', width: '100%', overflow: 'hidden',
         background: 'radial-gradient(ellipse 90% 120% at 50% 50%, #161616 0%, #050505 100%)',
-        paddingTop: 32, paddingBottom: 32,
+        paddingTop: 48, paddingBottom: 48,
         transition: 'background 0.5s ease',
       }}
     >
@@ -282,7 +282,7 @@ export function PartnerMarquee({ partners = PARTNERS }: PartnerMarqueeProps) {
           ref={trackRef}
           style={{
             display: 'flex', alignItems: 'center',
-            gap: 32, paddingTop: 20, paddingBottom: 16,
+            gap: 56, paddingTop: 24, paddingBottom: 20,
             width: 'max-content',
           }}
         >

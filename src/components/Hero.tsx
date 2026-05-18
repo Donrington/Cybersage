@@ -7,7 +7,6 @@ import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { Wifi, Mouse, ArrowUpRight } from 'lucide-react';
 import { AsciiCanvas } from './AsciiCanvas';
-import { PortalMarquee } from './PortalMarquee';
 import { useIsMobile } from '@/lib/useIsMobile';
 
 gsap.registerPlugin(ScrollTrigger);
@@ -341,10 +340,6 @@ export function Hero() {
             </motion.div>
           </div>
 
-          {/* Portal Marquee Dock — floating at bottom */}
-          <div className="mt-auto pt-8 sm:pt-10 lg:pt-12 pb-4 sm:pb-5 lg:pb-6">
-            <PortalMarquee isParentHovered={isLeftPaneHovered} />
-          </div>
         </div>
 
         {/* Right pane — 62% on desktop, full width on mobile — bleeds off edge */}
