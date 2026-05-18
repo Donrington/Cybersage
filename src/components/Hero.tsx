@@ -275,14 +275,19 @@ export function Hero() {
         {/* Left pane — 42% on desktop, full width on mobile — with bento lines */}
         <div
           ref={leftPaneRef}
-          className="relative z-20 flex w-full lg:w-[42%] flex-col px-6 sm:px-8 md:px-12 lg:px-14 py-12 lg:py-0 pb-0 lg:pb-0 gap-6 sm:gap-7 lg:gap-9 overflow-hidden"
+          className="relative z-20 flex order-last lg:order-first w-full lg:w-[42%] flex-col px-6 sm:px-8 md:px-12 lg:px-14 pt-6 pb-10 sm:pb-12 lg:pt-0 lg:pb-14 gap-4 sm:gap-5 lg:gap-9 overflow-hidden"
         >
           <BentoLines mobile={isMobile} />
 
-          {/* Main content section — pushed up */}
-          <div className="flex flex-col gap-6 sm:gap-7 lg:gap-9 flex-1 justify-end">
-            {/* HUD Readout */}
-            <HUDReadout />
+          {/* Mobile separator line between canvas and text */}
+          <div className="block lg:hidden h-px w-full" style={{ background: 'linear-gradient(to right, transparent, rgba(0,255,156,0.2), transparent)' }} />
+
+          {/* Main content section */}
+          <div className="flex flex-col gap-4 sm:gap-5 lg:gap-9 flex-1 justify-start lg:justify-end">
+            {/* HUD Readout — desktop only; hidden on mobile for clean hierarchy */}
+            <div className="hidden lg:block">
+              <HUDReadout />
+            </div>
 
             {/* H1 with glitch reveal and break */}
             <div>
@@ -345,7 +350,7 @@ export function Hero() {
         {/* Right pane — 62% on desktop, full width on mobile — bleeds off edge */}
         <div
           ref={rightRef}
-          className="relative w-full lg:w-[62%] h-64 sm:h-80 md:h-96 lg:h-auto"
+          className="relative order-first lg:order-last w-full lg:w-[62%] h-[48vh] sm:h-[52vh] lg:h-auto"
           style={{ marginRight: '-3%' }}
         >
           {/* Pulsing inner glow on the canvas panel */}
@@ -371,7 +376,7 @@ export function Hero() {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 1.6, duration: 0.8 }}
-        className="absolute bottom-4 sm:bottom-6 left-1/2 lg:left-[21%] -translate-x-1/2 lg:translate-x-0 z-30 flex flex-col items-center gap-1.5"
+        className="absolute bottom-4 sm:bottom-6 left-1/2 lg:left-[21%] -translate-x-1/2 lg:translate-x-0 z-30 hidden lg:flex flex-col items-center gap-1.5"
       >
         <motion.div
           animate={{ y: [0, 6, 0] }}
